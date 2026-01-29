@@ -842,6 +842,14 @@ class WeightToolsProperties(bpy.types.PropertyGroup):
     orig_use_frontface_falloff: BoolProperty()
 
 
+class PoseToolsProperties(bpy.types.PropertyGroup):
+    source_armature: PointerProperty(
+        name="Source",
+        type=bpy.types.Object,
+        poll=lambda self, obj: obj.type == 'ARMATURE'
+    )
+
+
 def register_properties():
     wm = bpy.types.WindowManager
     wm.modal_x = IntProperty(name="Mouse X", default=0)
@@ -875,6 +883,7 @@ def register_properties():
     )
     bpy.types.Scene.rex_cleanup_props = PointerProperty(type=CleanupProperties)
     bpy.types.Scene.weight_tools_props = PointerProperty(type=WeightToolsProperties)
+    bpy.types.Scene.pose_tools_props = PointerProperty(type=PoseToolsProperties)
 
 
 def unregister_properties():
@@ -900,3 +909,4 @@ def unregister_properties():
     del bpy.types.Scene.rex_auto_frame_range
     del bpy.types.Scene.rex_cleanup_props
     del bpy.types.Scene.weight_tools_props
+    del bpy.types.Scene.pose_tools_props

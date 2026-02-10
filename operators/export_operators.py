@@ -163,6 +163,46 @@ class REXTOOLS3_OT_Export(Operator):
                     notify.error("Shape keys won't be exported. Modifier found in object.")
                     break
 
+            # --- Pre-export transforms ---
+            import mathutils
+            pre_rot = settings.pre_rotation
+            pre_scl = settings.pre_scale
+            needs_pre_rotation = any(v != 0.0 for v in pre_rot)
+            needs_pre_scale = pre_scl != 1.0
+
+            if needs_pre_rotation or needs_pre_scale:
+                # Select only valid objects for transform
+                bpy.ops.object.select_all(action='DESELECT')
+                for o in valid_objs:
+                    try: o.select_set(True)
+                    except: pass
+
+                if needs_pre_rotation:
+                    for o in valid_objs:
+                        # Inverse Step: Subtract pre_rot to prepare for application
+                        o.rotation_euler.x -= pre_rot[0]
+                        o.rotation_euler.y -= pre_rot[1]
+                        o.rotation_euler.z -= pre_rot[2]
+                    # Freeze Step: Bake the inverse rotation into mesh/armature data
+                    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                    for o in valid_objs:
+                        # Offset Step: Restore visual state by adding back pre_rot
+                        # This leaves the rotation values in the fields for export
+                        o.rotation_euler.x += pre_rot[0]
+                        o.rotation_euler.y += pre_rot[1]
+                        o.rotation_euler.z += pre_rot[2]
+
+                if needs_pre_scale:
+                    for o in valid_objs:
+                        # Inverse Step: Divide by pre_scl to prepare for application
+                        o.scale /= pre_scl
+                    # Freeze Step: Bake the inverse scale into mesh/armature data
+                    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+                    for o in valid_objs:
+                        # Offset Step: Restore visual state by multiplying back pre_scl
+                        # This leaves the scale values in the fields for export
+                        o.scale *= pre_scl
+
             try:
                 if fmt == 'FBX':
                     if settings.fbx_remove_armature_root:
@@ -180,6 +220,21 @@ class REXTOOLS3_OT_Export(Operator):
                 context.scene.rex_export_settings.last_export_path = dest_dir
             except Exception as e:
                 self.report({'ERROR'}, f"Failed to export {name}: {e}")
+            finally:
+                # --- Restore pre-export transforms ---
+                if needs_pre_rotation or needs_pre_scale:
+                    bpy.ops.object.select_all(action='DESELECT')
+                    for o in valid_objs:
+                        try: o.select_set(True)
+                        except: pass
+
+                    if needs_pre_scale:
+                        # Finalize Step: Bring the object back to 1.0 applied
+                        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+                    if needs_pre_rotation:
+                        # Finalize Step: Bring the object back to (0,0,0) applied
+                        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
         # Restore
         bpy.ops.object.select_all(action='DESELECT')

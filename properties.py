@@ -801,8 +801,26 @@ class RexExportSettings(PropertyGroup):
     )
     fbx_remove_armature_root: BoolProperty(
         name="Remove Armature Root",
-        description="Removes the default Armature empty root when exporting FBX. (Method: Robust in-memory patching)",
+        description="Removes the default Armature empty root when exporting FBX",
         default=False
+    )
+    show_additional_settings: BoolProperty(
+        name="Show Additional Settings",
+        description="Show additional export settings",
+        default=False
+    )
+    pre_rotation: FloatVectorProperty(
+        name="Pre Rotation",
+        description="Rotate objects by this amount before exporting, then restore after",
+        size=3,
+        default=(0.0, 0.0, 0.0),
+        subtype='EULER'
+    )
+    pre_scale: FloatProperty(
+        name="Pre Scale",
+        description="Scale objects by this factor before exporting, then restore after",
+        default=1.0,
+        min=0.001,
     )
 
 

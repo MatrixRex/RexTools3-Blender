@@ -40,6 +40,9 @@ class REXTOOLS3_PT_ExportManager(Panel):
         scol.prop(settings, "export_format", text="Format")
         scol.prop(settings, "export_preset", text="Preset")
         
+        if settings.export_format == 'FBX':
+            scol.prop(settings, "fbx_remove_armature_root")
+        
         layout.separator(factor=1.5)
         
         # --- EXPORT TARGETS & PREVIEW ---

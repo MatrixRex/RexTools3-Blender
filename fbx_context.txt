@@ -1,0 +1,1552 @@
+﻿
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2165: 
+   if not bones:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2166: 
+       return
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2167:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2168: 
+   data_bones.update(
+(bo, get_blender_bone
+_key(arm_obj.bdata, 
+bo.bdata)) for bo in 
+bones)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2169:
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2170: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2171: 
+       if not ob_obj.
+is_deformed_by_armatu
+re(arm_obj):
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2172: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2173:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2174: 
+       # Always 
+handled by an 
+Armature modifier...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2175: 
+       found = False
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2176: 
+       for mod in ob_
+obj.bdata.modifiers:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2177: 
+           if 
+mod.type not in 
+{'ARMATURE'} or not 
+mod.object:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2178: 
+               
+continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2179: 
+           # We only 
+support vertex 
+groups binding 
+method, not bone 
+envelopes one!
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2180: 
+           if 
+mod.object == 
+arm_obj.bdata and mod
+.use_vertex_groups:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2181: 
+               found 
+= True
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2182: 
+               break
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2183:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2184: 
+       if not found:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2185: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2186:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2187: 
+       # Now we have 
+a mesh using this 
+armature.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2188: 
+       # Note: 
+bindpose have no 
+relations at all (no 
+connections), so no 
+need for any 
+preprocess for them.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2189: 
+       # Create skin 
+& clusters relations 
+(note skins are 
+connected to 
+geometry, *not* 
+model!).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2190: 
+       _key, me, 
+_free = 
+data_meshes[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2259:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2260: 
+   back_currframe = 
+scene.frame_current
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2261: 
+   animdata_ob = {}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2262: 
+   p_rots = {}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2263:
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2264: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2265: 
+       if ob_obj.pare
+nted_to_armature:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2266: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2267: 
+       ACNW = Animati
+onCurveNodeWrapper
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2268: 
+       loc, rot, 
+scale, _m, _mr = ob_o
+bj.fbx_object_tx(scen
+e_data)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2269: 
+       rot_deg = tupl
+e(convert_rad_to_deg_
+iter(rot))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2270: 
+       force_key = 
+(simplify_fac == 
+0.0) or 
+(ob_obj.is_bone and 
+force_keying)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2271: 
+       
+animdata_ob[ob_obj] 
+= (ACNW(ob_obj.key, 
+'LCL_TRANSLATION', 
+force_key, 
+force_sek, loc),
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2272: 
+                     
+         
+ACNW(ob_obj.key, 
+'LCL_ROTATION', 
+force_key, 
+force_sek, rot_deg),
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2273: 
+                     
+         
+ACNW(ob_obj.key, 
+'LCL_SCALING', 
+force_key, 
+force_sek, scale))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2274: 
+       
+p_rots[ob_obj] = rot
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2275:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2276: 
+   force_key = 
+(simplify_fac == 0.0)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2277: 
+   animdata_shapes = 
+{}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2278:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2279: 
+   for me, (me_key, 
+_shapes_key, shapes) 
+in scene_data.data_de
+formers_shape.items()
+:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2280: 
+       # Ignore 
+absolute shape keys 
+for now!
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2281: 
+       if not me.shap
+e_keys.use_relative:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2282: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2283: 
+       for shape, 
+(channel_key, 
+geom_key, 
+_shape_verts_co, 
+_shape_verts_idx) in 
+shapes.items():
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2284: 
+           acnode = A
+nimationCurveNodeWrap
+per(channel_key, 
+'SHAPE_KEY', 
+force_key, 
+force_sek, (0.0,))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2647: 
+                   
+for ob_obj in 
+objects if 
+ob_obj.type == 
+'EMPTY'}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2648:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2649: 
+   perfmon.step("FBX 
+export prepare: 
+Wrapping Meshes...")
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2650:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2651: 
+   data_meshes = {}
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2652: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2653: 
+       if 
+ob_obj.type not in BL
+ENDER_OBJECT_TYPES_ME
+SHLIKE:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2654: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2655: 
+       ob = 
+ob_obj.bdata
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2656: 
+       org_ob_obj = 
+None
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2657:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2658: 
+       # Do not want 
+to systematically 
+recreate a new mesh 
+for dupliobject 
+instances, kind of 
+break purpose of 
+those.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2659: 
+       if 
+ob_obj.is_dupli:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2660: 
+           
+org_ob_obj = 
+ObjectWrapper(ob)  # 
+We get the "real" 
+object wrapper from 
+that dupli instance.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2661: 
+           if 
+org_ob_obj in 
+data_meshes:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2662: 
+               
+data_meshes[ob_obj] 
+= data_meshes[org_ob_
+obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2663: 
+               
+continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2664:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2665: 
+       # There are 4 
+different cases for 
+what we need to do 
+with the original 
+data of each Object:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2666: 
+       # 1) The 
+original data can be 
+used without changes.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2667: 
+       # 2) A copy 
+of the original data 
+needs to be made.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2668: 
+       #  - If an 
+export option 
+modifies the data, 
+e.g. Triangulate 
+Faces is enabled.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2669: 
+       #  - If the 
+Object has 
+Object-linked 
+materials. This is 
+because our current 
+mapping of materials 
+to FBX requires
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2670: 
+       #    that 
+multiple Objects 
+sharing a single 
+mesh must have the 
+same materials.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2671: 
+       # 3) The 
+Object needs to be 
+converted to a mesh.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2672: 
+       #  - All 
+mesh-like Objects 
+that are not meshes 
+need to be converted 
+to a mesh in order 
+to be exported.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2875: 
+   # TODO: Check all 
+the material stuff 
+works even when they 
+are linked to Objects
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2876: 
+   #       (we can 
+then have the same 
+mesh used with 
+different 
+materials...).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2877: 
+   #       *Should* 
+work, as FBX always 
+links its materials 
+to Models (i.e. 
+objects).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2878: 
+   #       XXX 
+However, material 
+indices would 
+probably break...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2879: 
+   data_materials = 
+{}
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2880: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2881: 
+       # If obj is 
+not a valid object 
+for materials, 
+wrapper will just 
+return an empty 
+tuple...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2882: 
+       for ma in 
+ob_obj.materials:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2883: 
+           if ma is 
+None:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2884: 
+               
+continue  # Empty 
+slots!
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2885: 
+           # Note 
+theoretically, FBX 
+supports any kind of 
+materials, even GLSL 
+shaders etc.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2886: 
+           # 
+However, I doubt 
+anything else than 
+Lambert/Phong is 
+really portable!
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2887: 
+           # Note we 
+want to keep a 
+'dummy' empty 
+material even when 
+we can't really 
+support it, see 
+T41396.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2888: 
+           ma_data = 
+data_materials.setdef
+ault(ma, (get_blender
+ID_key(ma), []))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2889: 
+           ma_data[1]
+.append(ob_obj)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2890:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2891: 
+   perfmon.step("FBX 
+export prepare: 
+Wrapping 
+Textures...")
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2892:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2893: 
+   # Note FBX 
+textures also hold 
+their mapping info.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2894: 
+   # TODO: Support 
+layers?
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2895: 
+   data_textures = {}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2896: 
+   # FbxVideo also 
+used to store static 
+images...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2897: 
+   data_videos = {}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2898: 
+   # For now, do not 
+use world textures, 
+don't think they can 
+be linked to 
+anything FBX wise...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2899: 
+   for ma in data_mat
+erials.keys():
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:2900: 
+       # Note: with 
+nodal shaders, we'll 
+could be generating 
+much more textures, 
+but that's kind of 
+unavoidable,
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3014: 
+   perfmon.step("FBX 
+export prepare: 
+Generating 
+Connections...")
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3015:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3016: 
+   connections = []
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3017:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3018: 
+   # Objects (with 
+classical parenting).
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3019: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3020: 
+       # Bones are 
+handled later.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3021: 
+       if not 
+ob_obj.is_bone:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3022: 
+           par_obj = 
+ob_obj.parent
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3023: 
+           # Meshes 
+parented to armature 
+are handled 
+separately, yet we 
+want the 'no parent' 
+connection (0).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3024: 
+           if 
+par_obj and ob_obj.ha
+s_valid_parent(object
+s) and (par_obj, 
+ob_obj) not in 
+arm_parents:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3025: 
+               connec
+tions.append((b"OO", 
+ob_obj.fbx_uuid, 
+par_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3026: 
+           else:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3027: 
+               connec
+tions.append((b"OO", 
+ob_obj.fbx_uuid, 0, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3028:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3029: 
+   # Armature & Bone 
+chains.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3030: 
+   for bo_obj in 
+data_bones.keys():
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3031: 
+       par_obj = 
+bo_obj.parent
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3032: 
+       if par_obj 
+not in objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3033: 
+           continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3034: 
+       connections.ap
+pend((b"OO", 
+bo_obj.fbx_uuid, 
+par_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3035:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3036: 
+   # Object data.
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3037: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3038: 
+       if 
+ob_obj.is_bone:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3039: 
+           
+bo_data_key = 
+data_bones[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3040: 
+           connection
+s.append((b"OO", get_
+fbx_uuid_from_key(bo_
+data_key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3041: 
+       else:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3042: 
+           if 
+ob_obj.type == 
+'LIGHT':
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3043: 
+               
+light_key = data_ligh
+ts[ob_obj.bdata.data]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3044: 
+               connec
+tions.append((b"OO", 
+get_fbx_uuid_from_key
+(light_key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3045: 
+           elif 
+ob_obj.type == 
+'CAMERA':
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3046: 
+               
+cam_key = 
+data_cameras[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3047: 
+               connec
+tions.append((b"OO", 
+get_fbx_uuid_from_key
+(cam_key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3048: 
+           elif 
+ob_obj.type == 
+'EMPTY' or 
+ob_obj.type == 
+'ARMATURE':
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3049: 
+               
+empty_key = 
+data_empties[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3050: 
+               connec
+tions.append((b"OO", 
+get_fbx_uuid_from_key
+(empty_key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3051: 
+           elif 
+ob_obj.type in BLENDE
+R_OBJECT_TYPES_MESHLI
+KE:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3052: 
+               
+mesh_key, _me, _free 
+= data_meshes[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3053: 
+               connec
+tions.append((b"OO", 
+get_fbx_uuid_from_key
+(mesh_key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3054:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3055: 
+   # Leaf Bones
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3056: 
+   for (_node_name, 
+par_uuid, node_uuid, 
+attr_uuid, _matrix, 
+_hide, _size) in 
+data_leaf_bones:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3057: 
+       connections.ap
+pend((b"OO", 
+node_uuid, par_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3080: 
+               # 
+bone -> cluster
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3081: 
+               connec
+tions.append((b"OO", 
+bo_obj.fbx_uuid, get_
+fbx_uuid_from_key(cls
+tr_key), None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3082:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3083: 
+   # Materials
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3084: 
+   mesh_material_indi
+ces = {}
+> C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3085: 
+   for ob_obj in 
+objects:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3086: 
+       ob_mat_idx = 0
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3087: 
+       me = None
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3088: 
+       if 
+ob_obj.type in BLENDE
+R_OBJECT_TYPES_MESHLI
+KE:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3089: 
+           
+_mesh_key, me, _free 
+= data_meshes[ob_obj]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3090: 
+       # NOTE: If a 
+mesh has multiple 
+material slots with 
+the same material, 
+they are combined 
+into one
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3091: 
+       # single 
+connexion (slot).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3092: 
+       # Even if 
+duplicate materials 
+were exported 
+without combining 
+them into one slot, 
+keeping duplicate
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3093: 
+       # materials 
+separated does not 
+appear to be common 
+behavior of external 
+software when 
+importing FBX.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3094: 
+       # Also, None 
+(empty slots, no 
+material) are always 
+skipped/ignored.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3095: 
+       done_materials
+_for_object = {None}
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3096: 
+       for ma in 
+ob_obj.materials:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3097: 
+           if ma in d
+one_materials_for_obj
+ect:
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3098: 
+               
+continue
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3099: 
+           done_mater
+ials_for_object.add(m
+a)
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3100: 
+           ma_key, 
+_ob_objs = 
+data_materials[ma]
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3101: 
+           connection
+s.append((b"OO", get_
+fbx_uuid_from_key(ma_
+key), 
+ob_obj.fbx_uuid, 
+None))
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3102: 
+           # Get 
+index of this 
+material for this 
+object (or 
+dupliobject).
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3103: 
+           # 
+Material indices for 
+mesh faces are 
+determined by their 
+order in 'ma to ob' 
+connections.
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3104: 
+           # Only 
+materials for meshes 
+currently...
+  C:\Program 
+Files\Blender 
+Foundation\Blender 5.
+0\5.0\scripts\addons_
+core\io_scene_fbx\exp
+ort_fbx_bin.py:3105: 
+           # Note in 
+case of dupliobjects 
+a same me/ma idx 
+will be generated 
+several times...
+
+

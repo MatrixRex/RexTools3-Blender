@@ -165,7 +165,11 @@ class REXTOOLS3_OT_Export(Operator):
 
             try:
                 if fmt == 'FBX':
-                    bpy.ops.export_scene.fbx(**op_args)
+                    if settings.fbx_remove_armature_root:
+                        from ..core import fbx_utils
+                        fbx_utils.run_patched_fbx_export(context, **op_args)
+                    else:
+                        bpy.ops.export_scene.fbx(**op_args)
                 elif fmt == 'GLTF':
                     op_args['export_format'] = 'GLB'
                     bpy.ops.export_scene.gltf(**op_args)

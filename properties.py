@@ -799,6 +799,11 @@ class RexExportSettings(PropertyGroup):
         description="Show a list of objects/collections with custom export paths",
         default=False
     )
+    fbx_remove_armature_root: BoolProperty(
+        name="Remove Armature Root",
+        description="Removes the default Armature empty root when exporting FBX. (Method: Robust in-memory patching)",
+        default=False
+    )
 
 
 def update_xray_brush(self, context):

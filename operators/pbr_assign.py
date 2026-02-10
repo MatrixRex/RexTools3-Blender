@@ -63,12 +63,14 @@ def _derive_stem_from_base(filename_no_ext_lower: str) -> str:
     to derive a 'stem' for matching. Handles cases like:
       MCX_Mat_AlbedoTransparency -> mcx_mat
       bullet_albedo               -> bullet
+      Model_D                     -> model
     """
     # allow compound endings like "albedotransparency"
     suffixes = [
         'albedo', 'basecolor', 'base_color', 'base-colour', 'basecolour', 'base',
         'diffuse', 'color', 'colour', 'col',
-        'opacity', 'transparency'
+        'opacity', 'transparency',
+        'alb', 'bc', 'diff', 'd', 'c' # short versions
     ]
     # Try compound endings first (albedo+opacity/transparency)
     patt_combo = r'(.+?)(?:[_\-]?(?:albedo|basecolor|base_color|base\-colour|basecolour|diffuse|color|colour|col))' \
@@ -78,7 +80,7 @@ def _derive_stem_from_base(filename_no_ext_lower: str) -> str:
         return m.group(1)
 
     # Then single endings
-    patt_single = r'(.+?)(?:[_\-]?(?:' + '|'.join(suffixes) + r'))$'
+    patt_single = r'(.+?)(?:[_\-](?:' + '|'.join(suffixes) + r'))$'
     m = re.match(patt_single, filename_no_ext_lower, re.IGNORECASE)
     if m:
         return m.group(1)
@@ -108,11 +110,16 @@ def _find_matches_in_dir(stem_lower: str, folder: Path, mapping: dict) -> dict:
                 # Check for suffix with common separators or as standalone if stem matches
                 # We check for f"_{suf}" or f"-{suf}" to avoid partial matches inside the stem
                 # but we also check if the suffix IS the rest of the string
+                is_match = False
                 for sep in ('_', '-'):
-                    if f"{sep}{suf}" in n:
-                        found = p
+                    pattern = rf"{re.escape(stem_lower)}{re.escape(sep)}{re.escape(suf)}$"
+                    if re.search(pattern, n):
+                        is_match = True
                         break
-                if found: break
+                
+                if is_match:
+                    found = p
+                    break
             if found: break
         if found:
             results[slot] = found
@@ -226,6 +233,14 @@ class PBR_OT_AssignTexture(Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
+        mat = context.active_object.active_material
+        if mat and hasattr(mat, "pbr_settings"):
+            # Default to the persistent material setting if not explicitly overridden
+            # We check if it's set to the default (False) and then check the material
+            # But the UI code in pbr_panel.py already passes it. This is a safety.
+            if not self.use_packed:
+                self.use_packed = mat.pbr_settings.use_packed_mode
+
         if self.input_name:
             self.bl_label = f"Assign {self.input_name}"
         self.filter_image = True
@@ -556,12 +571,12 @@ class PBR_OT_AutoLoadTextures(Operator):
         # Slot -> acceptable suffix tokens (lowercase)
         # We now use keywords only; matching logic handles separators like _ or -
         suffix_map = {
-            'Roughness': ['roughness', 'rough', 'rgh', 'smoothness', 'gloss', 'glossiness'],
-            'Metallic':  ['metallic', 'metal', 'metalness', 'mtl', 'metalsmoothness'],
-            'Normal':    ['normal', 'norm', 'nrm', 'normalgl', 'normal_dx', 'normal_ogl', 'nmap', 'nm', 'bump'],
-            'Alpha':     ['alpha', 'opacity', 'transparency'],
+            'Roughness': ['roughness', 'rough', 'rgh', 'smoothness', 'gloss', 'glossiness', 'r'],
+            'Metallic':  ['metallic', 'metal', 'metalness', 'mtl', 'metalsmoothness', 'm', 'met'],
+            'Normal':    ['normal', 'norm', 'nrm', 'normalgl', 'normal_dx', 'normal_ogl', 'nmap', 'nm', 'bump', 'n'],
+            'Alpha':     ['alpha', 'opacity', 'transparency', 'a'],
             'AO':        ['ao', 'ambientocclusion', 'ambient_occlusion', 'occ'],
-            'Emission':  ['emissive', 'emission', 'emit', 'glow'],
+            'Emission':  ['emissive', 'emission', 'emit', 'glow', 'e'],
         }
 
         matches = _find_matches_in_dir(stem_lower, folder, suffix_map)

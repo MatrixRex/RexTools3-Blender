@@ -50,6 +50,7 @@ class PBR_PT_MaterialPanel(Panel):
         # Header
         row = layout.row(align=True)
         row.prop(mat, "name", text="Material")
+        row.prop(mat.pbr_settings, "use_packed_mode", text="Packing Mode", icon='PACKAGE', toggle=True)
         
         
         layout.separator()
@@ -78,6 +79,12 @@ class PBR_PT_MaterialPanel(Panel):
             al_box.prop(mat.pbr_settings, "common_name", text="Common Name")
 
         layout.separator()
+
+        # Packing Mode Active Alert
+        if mat.pbr_settings.use_packed_mode:
+            pbox = layout.box()
+            pbox.prop(mat.pbr_settings, "use_packed_mode", text="PACKING MODE ACTIVE", icon='PACKAGE', toggle=True)
+            layout.separator()
 
         # Debug Preview Active Alert
         if mat.pbr_settings.debug_preview_mode != 'OFF':
@@ -264,9 +271,14 @@ class PBR_PT_MaterialPanel(Panel):
 
             # If not linked, show assign UI
             else:
-                op = hdr.operator("pbr.assign_texture", text="Assign", icon='FILEBROWSER')
+                p_mode = mat.pbr_settings.use_packed_mode
+                assign_text = "Assign (Packed)" if p_mode else "Assign"
+                assign_icon = 'PACKAGE' if p_mode else 'FILEBROWSER'
+                
+                op = hdr.operator("pbr.assign_texture", text=assign_text, icon=assign_icon)
                 op.input_name = socket
                 op.colorspace = colorspace
+                op.use_packed = p_mode
 
                 if socket not in ("Normal", "AO"):
                     if socket == "Base Color":

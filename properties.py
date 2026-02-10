@@ -456,6 +456,11 @@ class PBRMaterialSettings(PropertyGroup):
         name="Use Auto-Detected Name",
         default=True,
     )
+    use_packed_mode: BoolProperty(
+        name="Packing Mode",
+        description="When enabled, assigning textures will default to packed setup",
+        default=False,
+    )
     common_name: StringProperty(
         name="Common Name",
         default="",

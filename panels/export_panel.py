@@ -142,6 +142,7 @@ class REXTOOLS3_PT_ExportManager(Panel):
             if settings.export_format == 'FBX':
                 acol.prop(settings, "fbx_remove_armature_root")
 
+            acol.prop(settings, "reset_transform")
             acol.prop(settings, "pre_rotation")
             acol.prop(settings, "pre_scale")
 

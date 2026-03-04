@@ -809,6 +809,11 @@ class RexExportSettings(PropertyGroup):
         description="Removes the default Armature empty root when exporting FBX",
         default=False
     )
+    reset_transform: BoolProperty(
+        name="Reset Transform",
+        description="Save object transforms, reset to origin (0,0,0 position/rotation), export, and restore",
+        default=True
+    )
     show_additional_settings: BoolProperty(
         name="Show Additional Settings",
         description="Show additional export settings",

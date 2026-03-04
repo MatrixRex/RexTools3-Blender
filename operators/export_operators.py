@@ -163,8 +163,19 @@ class REXTOOLS3_OT_Export(Operator):
                     notify.error("Shape keys won't be exported. Modifier found in object.")
                     break
 
-            # --- Pre-export transforms ---
+            # --- Reset Transform ---
             import mathutils
+            saved_transforms = {}
+            if settings.reset_transform:
+                for o in valid_objs:
+                    try:
+                        saved_transforms[o] = o.matrix_world.copy()
+                        _, _, scl = o.matrix_world.decompose()
+                        o.matrix_world = mathutils.Matrix.LocRotScale((0, 0, 0), mathutils.Quaternion((1, 0, 0, 0)), scl)
+                    except Exception as e:
+                        print(f"Failed to reset transform for {o.name}: {e}")
+
+            # --- Pre-export transforms ---
             pre_rot = settings.pre_rotation
             pre_scl = settings.pre_scale
             needs_pre_rotation = any(v != 0.0 for v in pre_rot)
@@ -235,6 +246,14 @@ class REXTOOLS3_OT_Export(Operator):
                     if needs_pre_rotation:
                         # Finalize Step: Bring the object back to (0,0,0) applied
                         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                
+                # --- Restore Reset Transform ---
+                if settings.reset_transform:
+                    for o, mat in saved_transforms.items():
+                        try:
+                            o.matrix_world = mat
+                        except Exception as e:
+                            print(f"Failed to restore transform for {o.name}: {e}")
 
         # Restore
         bpy.ops.object.select_all(action='DESELECT')

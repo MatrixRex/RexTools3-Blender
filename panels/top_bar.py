@@ -20,12 +20,12 @@ class REXTOOLS3_PT_ExportSettingsPopup(bpy.types.Panel):
 
         layout.separator()
 
-        # --- QUICK CONFIG ---
-        col = utils.draw_section(layout, "Config", icon='SETTINGS')
+        # --- GLOBAL CONFIGURATION ---
+        col = utils.draw_section(layout, "Global Configuration", icon='WORLD')
         col.use_property_split = True
         col.use_property_decorate = False
         
-        # Path selection (removed redundant button)
+        # Path selection
         col.prop(settings, "export_path", text="Path")
         
         col.prop(settings, "export_mode", text="Mode")
@@ -36,75 +36,107 @@ class REXTOOLS3_PT_ExportSettingsPopup(bpy.types.Panel):
 
         layout.separator()
 
-        # --- PREVIEW ---
+        # --- ADDITIONAL SETTINGS ---
+        abox = layout.box()
+        arow = abox.row()
+        arow.prop(settings, "show_additional_settings",
+                 icon='TRIA_DOWN' if settings.show_additional_settings else 'TRIA_RIGHT',
+                 text="Additional Settings",
+                 emboss=False)
+
+        if settings.show_additional_settings:
+            acol = abox.column(align=True)
+            acol.use_property_split = True
+            acol.use_property_decorate = False
+
+            if settings.export_format == 'FBX':
+                acol.prop(settings, "fbx_remove_armature_root")
+
+            acol.prop(settings, "reset_transform")
+            acol.prop(settings, "pre_rotation")
+            acol.prop(settings, "pre_scale")
+
+        layout.separator()
+
+        # --- EXPORT PREVIEW ---
         from ..operators.export_operators import get_export_groups
         groups = get_export_groups(context, settings)
         
-        tbox = layout.box()
-        trow = tbox.row()
-        trow.prop(settings, "show_preview", 
+        pbox = layout.box()
+        prow = pbox.row()
+        prow.prop(settings, "show_preview", 
                  icon='TRIA_DOWN' if settings.show_preview else 'TRIA_RIGHT', 
-                 text=f"Targets ({len(groups)})",
+                 text=f"Export Preview ({len(groups)})",
                  emboss=False)
         
         if settings.show_preview:
             if groups:
-                p_col = tbox.column(align=True)
-                for name in sorted(groups.keys()):
-                    p_col.label(text=name, icon='OBJECT_DATA')
+                # Group by source
+                by_source = {} # { source_name: [group_names] }
+                source_objs = {} # { source_name: source_obj }
+                for name, data in groups.items():
+                    src = data['source']
+                    src_name = src.name if hasattr(src, "name") else "Global Settings"
+                    if src_name == "Scene": src_name = "Global Settings"
+                    
+                    if src_name not in by_source:
+                        by_source[src_name] = []
+                        source_objs[src_name] = src
+                    by_source[src_name].append(name)
+
+                p_col = pbox.column(align=True)
+                for src_name in sorted(by_source.keys()):
+                    # Source Header
+                    src_obj = source_objs[src_name]
+                    is_global = (src_name == "Global Settings")
+                    
+                    # Determine expansion state
+                    if is_global:
+                        expanded = settings.ui_expand_global_preview
+                        expand_prop = "ui_expand_global_preview"
+                        expand_target = settings
+                    else:
+                        overrides = src_obj.rex_export_overrides
+                        expanded = overrides.ui_expand_preview
+                        expand_prop = "ui_expand_preview"
+                        expand_target = overrides
+
+                    # Group Box
+                    sbox = p_col.box()
+                    s_row = sbox.row(align=True)
+                    
+                    s_row.prop(expand_target, expand_prop, 
+                                icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT', 
+                                text="", emboss=False)
+                    
+                    if not is_global:
+                        sel_op = s_row.operator("rextools3.select_by_name", text=src_name, icon='OUTLINER_COLLECTION', emboss=False)
+                        sel_op.name = src_name
+                        sel_op.type = 'COLLECTION'
+                        
+                        clear_op = s_row.operator("rextools3.clear_export_path", text="", icon='X')
+                        clear_op.name = src_name
+                        clear_op.type = 'COLLECTION'
+                    else:
+                        s_row.label(text=src_name, icon='WORLD')
+
+                    if expanded:
+                        item_col = sbox.column(align=True)
+                        for g_name in sorted(by_source[src_name]):
+                            i_row = item_col.row(align=True)
+                            i_row.separator(factor=2.0)
+                            
+                            g_icon = 'OUTLINER_COLLECTION' if settings.export_mode == 'COLLECTIONS' else 'OBJECT_DATA'
+                            
+                            sel_op = i_row.operator("rextools3.select_by_name", text=g_name, icon=g_icon, emboss=False)
+                            sel_op.name = g_name
+                            sel_op.type = 'COLLECTION' if settings.export_mode == 'COLLECTIONS' else 'OBJECT'
+                        
+                    p_col.separator(factor=0.5)
             else:
-                tbox.label(text="None", icon='ERROR')
+                pbox.label(text="None", icon='ERROR')
 
         layout.separator()
-        
-        # --- OVERRIDES ---
-        obox = layout.box()
-        orow = obox.row()
-        orow.prop(settings, "show_custom_locations",
-                 icon='TRIA_DOWN' if settings.show_custom_locations else 'TRIA_RIGHT',
-                 text="Overrides",
-                 emboss=False)
-        
-        if settings.show_custom_locations:
-            mode = settings.export_mode
-            sel_count = len(context.selected_objects)
-
-            if sel_count > 0:
-                row = obox.row(align=True)
-                if mode in {'OBJECTS', 'PARENTS'} and context.active_object:
-                    op = row.operator("rextools3.browse_export_path", text="", icon='ADD')
-                    op.target = 'OBJECT'
-                    op.target_name = context.active_object.name
-                elif mode == 'COLLECTIONS' and context.view_layer.active_layer_collection:
-                    op = row.operator("rextools3.browse_export_path", text="", icon='OUTLINER_COLLECTION')
-                    op.target = 'COLLECTION'
-                    op.target_name = context.view_layer.active_layer_collection.collection.name
-            
-            obox.separator()
-            custom_items = []
-            if mode == 'COLLECTIONS':
-                for coll in bpy.data.collections:
-                    if coll.export_location:
-                        custom_items.append(('COLLECTION', coll))
-            else:
-                for obj in bpy.data.objects:
-                    if obj.export_location:
-                        custom_items.append(('OBJECT', obj))
-            
-            if custom_items:
-                for type, item in custom_items:
-                    row = obox.row(align=True)
-                    op = row.operator("rextools3.select_by_name", text="", icon='RESTRICT_SELECT_OFF')
-                    op.name = item.name
-                    op.type = type
-                    row.prop(item, "export_location", text=item.name)
-                    clear_op = row.operator("rextools3.clear_export_path", text="", icon='X')
-                    clear_op.name = item.name
-                    clear_op.type = type
-            else:
-                obox.label(text="None", icon='INFO')
-
-
 
 def draw_topbar_export(self, context):
     layout = self.layout

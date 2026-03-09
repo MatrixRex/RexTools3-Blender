@@ -16,7 +16,7 @@ bl_info = {
     "author": "MatrixRex",
     "description": "A set of production tools for Blender",
     "blender": (4, 5, 0),
-    "version": (0, 2, 0),
+    "version": (0, 2, 1),
     "location": "View3D > Sidebar > RexTools3",
     "warning": "",
     "category": "Mesh",

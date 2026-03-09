@@ -759,31 +759,128 @@ class RexExportSettings(PropertyGroup):
         default='FBX'
     )
     
-    def get_presets(self, context):
-        import os
-        import bpy
-        
-        presets = [('NONE', "No Preset", "")]
-        
-        # Determine preset folder based on format
-        fmt = self.export_format.lower()
-        if fmt == 'fbx':
-            folder = "export_scene.fbx"
-        elif fmt == 'gltf':
-            folder = "export_scene.gltf"
-        elif fmt == 'obj':
-            folder = "export_scene.obj"
-        else:
-            return presets
-
-        paths = bpy.utils.preset_paths(os.path.join("operator", folder))
-        for p in paths:
-            for f in os.listdir(p):
-                if f.endswith(".py"):
-                    name = f[:-3]
-                    presets.append((name, name.replace("_", " ").title(), ""))
-        
+def get_export_presets(format_str):
+    import os
+    import bpy
+    
+    presets = [('NONE', "No Preset", "")]
+    
+    # Determine preset folder based on format
+    fmt = format_str.lower()
+    if fmt == 'fbx':
+        folder = "export_scene.fbx"
+    elif fmt == 'gltf':
+        folder = "export_scene.gltf"
+    elif fmt == 'obj':
+        folder = "export_scene.obj"
+    else:
         return presets
+
+    paths = bpy.utils.preset_paths(os.path.join("operator", folder))
+    for p in paths:
+        for f in os.listdir(p):
+            if f.endswith(".py"):
+                name = f[:-3]
+                presets.append((name, name.replace("_", " ").title(), ""))
+    
+    return presets
+
+
+class RexCollectionExportOverrides(PropertyGroup):
+    use_overrides: BoolProperty(
+        name="Use Overrides",
+        description="Enable custom export settings for this collection",
+        default=False
+    )
+    export_path: StringProperty(
+        name="Export Path",
+        description="Custom directory for this collection's export",
+        default="",
+        subtype='DIR_PATH'
+    )
+    export_format: EnumProperty(
+        name="Format",
+        items=[
+            ('FBX', "FBX", "Export as FBX"),
+            ('GLTF', "GLTF", "Export as GLTF"),
+            ('OBJ', "OBJ", "Export as OBJ"),
+        ],
+        default='FBX'
+    )
+    
+    def get_presets(self, context):
+        return get_export_presets(self.export_format)
+
+    export_preset: EnumProperty(
+        name="Preset",
+        items=get_presets,
+    )
+    fbx_remove_armature_root: BoolProperty(
+        name="Remove Armature Root",
+        description="Removes the default Armature empty root when exporting FBX",
+        default=False
+    )
+    reset_transform: BoolProperty(
+        name="Reset Transform",
+        description="Save object transforms, reset to origin (0,0,0 position/rotation), export, and restore",
+        default=True
+    )
+    pre_rotation: FloatVectorProperty(
+        name="Pre Rotation",
+        description="Rotate objects by this amount before exporting, then restore after",
+        size=3,
+        default=(0.0, 0.0, 0.0),
+        subtype='EULER'
+    )
+    pre_scale: FloatProperty(
+        name="Pre Scale",
+        description="Scale objects by this factor before exporting, then restore after",
+        default=1.0,
+        min=0.001,
+    )
+    ui_expand_preview: BoolProperty(
+        name="Expand Preview",
+        default=True
+    )
+
+
+class RexExportSettings(PropertyGroup):
+    export_path: StringProperty(
+        name="Export Path",
+        description="Global directory for exports",
+        default="",
+        subtype='DIR_PATH'
+    )
+    export_mode: EnumProperty(
+        name="Export Mode",
+        items=[
+            ('OBJECTS', "Objects", "Each object as 1 mesh"),
+            ('PARENTS', "Parents", "Each top most parent as 1 mesh"),
+            ('COLLECTIONS', "Collections", "Each collection as 1 mesh"),
+        ],
+        default='OBJECTS'
+    )
+    export_limit: EnumProperty(
+        name="Limit",
+        items=[
+            ('VISIBLE', "Visible", "All scene visible objects"),
+            ('SELECTED', "Selected", "Only selected objects"),
+            ('RENDER', "Render Visible", "Only objects visible for render"),
+        ],
+        default='SELECTED'
+    )
+    export_format: EnumProperty(
+        name="Format",
+        items=[
+            ('FBX', "FBX", "Export as FBX"),
+            ('GLTF', "GLTF", "Export as GLTF"),
+            ('OBJ', "OBJ", "Export as OBJ"),
+        ],
+        default='FBX'
+    )
+    
+    def get_presets(self, context):
+        return get_export_presets(self.export_format)
 
     export_preset: EnumProperty(
         name="Preset",
@@ -799,10 +896,9 @@ class RexExportSettings(PropertyGroup):
         description="Show a list of unique models that will be exported",
         default=False
     )
-    show_custom_locations: BoolProperty(
-        name="Show Custom Locations",
-        description="Show a list of objects/collections with custom export paths",
-        default=False
+    ui_expand_global_preview: BoolProperty(
+        name="Expand Global Preview",
+        default=True
     )
     fbx_remove_armature_root: BoolProperty(
         name="Remove Armature Root",
@@ -899,14 +995,7 @@ def register_properties():
     bpy.types.Material.pbr_settings = PointerProperty(type=PBRMaterialSettings)
 
     bpy.types.Scene.rex_export_settings = PointerProperty(type=RexExportSettings)
-    bpy.types.Collection.export_location = StringProperty(
-        name="Export Location",
-        subtype='DIR_PATH'
-    )
-    bpy.types.Object.export_location = StringProperty(
-        name="Export Location",
-        subtype='DIR_PATH'
-    )
+    bpy.types.Collection.rex_export_overrides = PointerProperty(type=RexCollectionExportOverrides)
     bpy.types.Scene.chain_constraints_props = PointerProperty(type=ChainConstraintsAdderProperties)
     bpy.types.Scene.rex_common_settings = PointerProperty(type=RexCommonSettings)
     bpy.types.Scene.rex_auto_frame_range = BoolProperty(
@@ -935,8 +1024,7 @@ def unregister_properties():
     del bpy.types.Material.pbr_settings
     
     del bpy.types.Scene.rex_export_settings
-    del bpy.types.Collection.export_location
-    del bpy.types.Object.export_location
+    del bpy.types.Collection.rex_export_overrides
     del bpy.types.Scene.chain_constraints_props
     del bpy.types.Scene.rex_common_settings
     del bpy.types.Scene.rex_auto_frame_range

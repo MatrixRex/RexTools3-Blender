@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-03-09
+
+### Added
+- **Hierarchical Export Overrides**:
+  - Implemented a "Local > Parent > Global" settings resolution system for collections.
+  - Sub-collections now automatically inherit settings (path, format, etc.) from their parent collections unless they have their own overrides enabled.
+  - New "RexTools Global Export" panel in Scene Properties for central management of global defaults.
+- **Unified Export Preview**:
+  - Combined "Export Targets" and "Overrides" into a single hierarchical preview section.
+  - Export items are now grouped by their effective settings source (specific collection override or global).
+  - Parent groups in the preview list are now collapsible for better organization in complex scenes.
+  - Clicking any item in the preview automatically navigates to and activates its configuration in the Properties editor.
+
+### Changed
+- **UI Refactoring**:
+  - Completely reorganized the Export Manager panel to prioritize "Batch Export" and a clean "Export Preview" workflow.
+  - Rebuilt the Top Bar Export popup to match the sidebar's naming, structure, and hierarchical logic.
+  - Simplified the override list by removing redundant path fields; all configuration is now handled in the dedicated Properties tabs.
+- **Consolidated Overrides**:
+  - Removed object-level path overrides to focus on a collection-centric workflow.
+  - Expanded collection overrides to include all global and additional settings (Format, Preset, Reset Transform, etc.).
+
 ## [0.2.0] - 2026-03-04
 
 ### Added

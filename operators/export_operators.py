@@ -3,6 +3,28 @@ import os
 from bpy.types import Operator
 from bpy.props import StringProperty
 
+def get_effective_overrides(coll, global_settings):
+    """Recursively find the first active override in the collection hierarchy."""
+    overrides = getattr(coll, "rex_export_overrides", None)
+    if overrides and overrides.use_overrides:
+        return coll, overrides
+    
+    # Look in parent collections
+    parents = [c for c in bpy.data.collections if coll.name in c.children]
+    # Also check the root scene collection
+    if coll.name in bpy.context.scene.collection.children:
+        parents.append(bpy.context.scene.collection)
+
+    for parent in parents:
+        # Avoid root Scene Collection which doesn't have overrides properties
+        if parent.name == "Scene Collection" or parent == bpy.context.scene.collection:
+            continue
+        source, res = get_effective_overrides(parent, global_settings)
+        if res != global_settings:
+            return source, res
+            
+    return bpy.context.scene, global_settings
+
 def get_export_groups(context, settings):
     mode = settings.export_mode
     limit = settings.export_limit
@@ -21,14 +43,26 @@ def get_export_groups(context, settings):
         return {}
 
     # Grouping
-    export_groups = {} # { name: {'objects': [], 'path': ""} }
+    export_groups = {} # { name: {'objects': [], 'settings': settings, 'source': source} }
 
     if mode == 'OBJECTS':
         for obj in objs_to_check:
             if obj.type != 'MESH': continue
-            path = bpy.path.abspath(obj.export_location) if obj.export_location else global_path
+            
+            # Find effective settings from collections
+            source = context.scene
+            eff_settings = settings
+            for coll in obj.users_collection:
+                s, es = get_effective_overrides(coll, settings)
+                if es != settings:
+                    source = s
+                    eff_settings = es
+                    break
+            
+            path = bpy.path.abspath(eff_settings.export_path) if eff_settings.export_path else global_path
             if not path: continue
-            export_groups[obj.name] = {'objects': [obj], 'path': path}
+            
+            export_groups[obj.name] = {'objects': [obj], 'settings': eff_settings, 'source': source, 'path': path}
             
     elif mode == 'PARENTS':
         for obj in objs_to_check:
@@ -37,9 +71,20 @@ def get_export_groups(context, settings):
                 root = root.parent
             
             if root.name not in export_groups:
-                path = bpy.path.abspath(root.export_location) if root.export_location else global_path
+                # Find effective settings from root object's collections
+                source = context.scene
+                eff_settings = settings
+                for coll in root.users_collection:
+                    s, es = get_effective_overrides(coll, settings)
+                    if es != settings:
+                        source = s
+                        eff_settings = es
+                        break
+                
+                path = bpy.path.abspath(eff_settings.export_path) if eff_settings.export_path else global_path
                 if not path: continue
-                export_groups[root.name] = {'objects': [], 'path': path}
+                
+                export_groups[root.name] = {'objects': [], 'settings': eff_settings, 'source': source, 'path': path}
             
             if obj not in export_groups[root.name]['objects']:
                 export_groups[root.name]['objects'].append(obj)
@@ -72,9 +117,13 @@ def get_export_groups(context, settings):
                 if limit == 'VISIBLE' and coll.hide_viewport: continue
                 
                 if coll.name not in export_groups:
-                    path = bpy.path.abspath(coll.export_location) if coll.export_location else global_path
+                    # Determine effective settings using hierarchy
+                    source, eff_settings = get_effective_overrides(coll, settings)
+                    
+                    path = bpy.path.abspath(eff_settings.export_path) if eff_settings.export_path else global_path
                     if not path: continue
-                    export_groups[coll.name] = {'objects': [], 'path': path}
+                    
+                    export_groups[coll.name] = {'objects': [], 'settings': eff_settings, 'source': source, 'path': path}
                 
                 if obj not in export_groups[coll.name]['objects']:
                     export_groups[coll.name]['objects'].append(obj)
@@ -101,18 +150,12 @@ class REXTOOLS3_OT_Export(Operator):
     bl_description = "Export objects based on settings"
     
     def execute(self, context):
-        settings = context.scene.rex_export_settings
-        fmt = settings.export_format
-        preset_name = settings.export_preset
-        
-        export_groups = get_export_groups(context, settings)
+        global_settings = context.scene.rex_export_settings
+        export_groups = get_export_groups(context, global_settings)
             
         if not export_groups:
             self.report({'ERROR'}, "No objects found to export with current settings.")
             return {'CANCELLED'}
-
-        # Fetch preset arguments
-        preset_args = self.get_preset_args(fmt, preset_name)
 
         # Execution
         orig_active = context.view_layer.objects.active
@@ -127,7 +170,22 @@ class REXTOOLS3_OT_Export(Operator):
             objs = data['objects']
             if not objs: continue
             
-            dest_dir = data['path']
+            # Use settings for this group (either global or override)
+            item_settings = data['settings']
+            fmt = item_settings.export_format
+            preset_name = item_settings.export_preset
+            
+            # Fetch preset arguments
+            preset_args = self.get_preset_args(fmt, preset_name)
+
+            dest_dir = data.get('path') or bpy.path.abspath(item_settings.export_path)
+            if not dest_dir:
+                dest_dir = bpy.path.abspath(global_settings.export_path)
+            
+            if not dest_dir:
+                self.report({'WARNING'}, f"Skipping {name}: No export path defined.")
+                continue
+
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir, exist_ok=True)
             
@@ -166,7 +224,7 @@ class REXTOOLS3_OT_Export(Operator):
             # --- Reset Transform ---
             import mathutils
             saved_transforms = {}
-            if settings.reset_transform:
+            if item_settings.reset_transform:
                 for o in valid_objs:
                     try:
                         saved_transforms[o] = o.matrix_world.copy()
@@ -176,8 +234,8 @@ class REXTOOLS3_OT_Export(Operator):
                         print(f"Failed to reset transform for {o.name}: {e}")
 
             # --- Pre-export transforms ---
-            pre_rot = settings.pre_rotation
-            pre_scl = settings.pre_scale
+            pre_rot = item_settings.pre_rotation
+            pre_scl = item_settings.pre_scale
             needs_pre_rotation = any(v != 0.0 for v in pre_rot)
             needs_pre_scale = pre_scl != 1.0
 
@@ -216,7 +274,7 @@ class REXTOOLS3_OT_Export(Operator):
 
             try:
                 if fmt == 'FBX':
-                    if settings.fbx_remove_armature_root:
+                    if item_settings.fbx_remove_armature_root:
                         from ..core import fbx_utils
                         fbx_utils.run_patched_fbx_export(context, **op_args)
                     else:
@@ -228,7 +286,7 @@ class REXTOOLS3_OT_Export(Operator):
                     bpy.ops.wm.obj_export(**op_args)
                 
                 # Update last export path to this successfully used directory
-                context.scene.rex_export_settings.last_export_path = dest_dir
+                global_settings.last_export_path = dest_dir
             except Exception as e:
                 self.report({'ERROR'}, f"Failed to export {name}: {e}")
             finally:
@@ -248,7 +306,7 @@ class REXTOOLS3_OT_Export(Operator):
                         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
                 
                 # --- Restore Reset Transform ---
-                if settings.reset_transform:
+                if item_settings.reset_transform:
                     for o, mat in saved_transforms.items():
                         try:
                             o.matrix_world = mat
@@ -337,8 +395,8 @@ class REXTOOLS3_OT_BrowseExportPath(Operator):
     bl_label = "Browse"
     
     directory: StringProperty(subtype='DIR_PATH')
-    target: StringProperty() # 'SCENE', 'COLLECTION', 'OBJECT'
-    target_name: StringProperty() # Name of the object or collection
+    target: StringProperty() # 'SCENE', 'COLLECTION'
+    target_name: StringProperty() # Name of the collection
     
     def execute(self, context):
         if self.target == 'SCENE':
@@ -347,17 +405,10 @@ class REXTOOLS3_OT_BrowseExportPath(Operator):
             name = self.target_name
             coll = bpy.data.collections.get(name) or context.view_layer.active_layer_collection.collection
             if coll:
-                coll.export_location = self.directory
+                coll.rex_export_overrides.export_path = self.directory
+                coll.rex_export_overrides.use_overrides = True
             else:
                 self.report({'ERROR'}, "No valid collection found.")
-                return {'CANCELLED'}
-        elif self.target == 'OBJECT':
-            name = self.target_name
-            obj = bpy.data.objects.get(name) or context.active_object
-            if obj:
-                obj.export_location = self.directory
-            else:
-                self.report({'ERROR'}, "No valid object found.")
                 return {'CANCELLED'}
         return {'FINISHED'}
 

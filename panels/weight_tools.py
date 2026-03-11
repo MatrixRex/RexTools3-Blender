@@ -17,4 +17,7 @@ class REXTOOLS3_PT_weight_tools(bpy.types.Panel):
         scene = context.scene
         props = scene.weight_tools_props
         
+        layout.operator("rextools3.init_weight_paint", icon='WPAINT_HLT')
+        layout.separator()
+        
         layout.prop(props, "xray_brush", toggle=True, icon='XRAY')

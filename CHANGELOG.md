@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-03-11
+
+### Added
+- **Weight Tools: Init Weight Paint**:
+  - New operator that correctly initializes a weight painting session.
+  - Automatically finds the armature modifier on a selected mesh, OR finds bound meshes if an armature is selected in Pose Mode.
+  - Correctly manages selection (Armature + Mesh) and enters Weight Paint mode.
+  - This prevents the common issue of entering weight paint mode without the rig being correctly selected for bone painting.
+  - Available in both "Weight Tools" (Weight Paint mode) and "Pose Tools" (Pose mode).
+
 ## [0.2.1] - 2026-03-09
 
 ### Added

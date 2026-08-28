@@ -101,13 +101,30 @@ Compress-Archive -Path . -DestinationPath ..\rextools3.zip
 python -m pyflakes .
 ```
 
+## Strict Versioning & Post-Feature Protocol
+
+- **Confirmation Gate (Ask First)**: NEVER bump versions, write CHANGELOG entries, or update README prematurely during development. The agent must first present the completed work and ask the user to confirm that the feature/fix is properly implemented and tested in Blender before modifying versioning or documentation.
+- **Strict SemVer Rules (`MAJOR.MINOR.PATCH`)**:
+  - **Patch (`x.y.Z+1`)**: Bug fixes, minor improvements, non-breaking tweaks, small polish, or refactors.
+  - **Minor (`x.Y+1.0`)**: Completed new features, new operators/panels, substantial enhancements, or new workflow tools.
+  - **Major (`X+1.0.0`)**: Breaking architectural changes, major compatibility overhauls, or milestone releases (only when explicitly requested by user).
+- **Synchronized Version Files**: Always keep version numbers strictly synchronized across:
+  1. `__init__.py` -> `"version": (major, minor, patch)`
+  2. `blender_manifest.toml` -> `version = "major.minor.patch"`
+  3. `CHANGELOG.md` -> `## [major.minor.patch] - YYYY-MM-DD`
+- **Standard Post-Feature Workflow**:
+  1. Complete code changes and run `python .agent/scripts/reload_addon.py` to trigger Blender addon reload.
+  2. Ask the user to confirm and test that the feature/fix works properly in Blender.
+  3. Upon user confirmation, propose the version bump: state the current version, the proposed new version (`Patch` or `Minor`), and ask if `CHANGELOG.md` and/or `README.md` should be updated.
+  4. Once approved by the user, update `__init__.py`, `blender_manifest.toml`, `CHANGELOG.md` (adhering to Keep a Changelog format: `Added`, `Changed`, `Fixed`), and `README.md` (if documentation changed).
+  5. Run `python .agent/scripts/reload_addon.py` again to ensure the reloaded addon reflects updated version metadata.
+
 ## Gotchas & Guidelines
 
-- **Post-Feature Updates**: After completing a feature, ask the user if they want to update the README and CHANGELOG (using the workflows `/update-readme` and `/update-changelog`). Do not update version number unless user specified. When user asks to update version number, ask them if they want patch, minor major update, and show current version number.
 - **Small, focused diffs only**: Avoid changing registration mechanics or the `auto_load` algorithm unless fixing a real bug and include tests or manual verification steps.
 - **Third-party dependencies**: If adding dependencies, list them in `blender_manifest.toml` `wheels` section and explain why they are required for offline packaging.
 - **No registration hacks**: When a class depends on another (e.g., a Panel's `bl_parent_id` or property annotations), rely on `auto_load`'s dependency discovery instead of explicit registration order hacks.
 - **Clarification**: For design intent (why a particular operator exists or UX expectations), check `Plan.md` for feature notes and iterate with the repo owner.
 - **UV vs Image Editor**: Both editors share `'IMAGE_EDITOR'` as `area.type`. Differentiate them via `area.ui_type` (`'UV'` vs `'VIEW'`). When displaying an image, check for and preserve `'UV'` type to avoid switching a UV Editor area to an Image View.
-- **Blender Icons**: Do not hallucinate or guess icon names in panels, operators, or UI elements. Refer to the list of allowed icons in [allowed_icons.md](file:///h:/Blender/RexTools3/.agent/allowed_icons.md) to choose a valid icon.
+- **Blender Icons**: Do not hallucinate or guess icon names in panels, operators, or UI elements. Refer to the list of allowed icons in [.agent/allowed_icons.md](file:///e:/Nazmul/RexToolsBlender/.agent/allowed_icons.md) to choose a valid icon.
 - **If you modify this file**: Keep it short and example-driven; avoid generic, project-agnostic advice.

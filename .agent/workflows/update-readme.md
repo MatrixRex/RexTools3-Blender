@@ -1,11 +1,12 @@
 ---
-description: Update README.md with new features or core changes
+description: Update README.md with new features or core changes after user confirmation
 ---
 
-1. Inform the user that you are about to update the README.md and ask for confirmation to proceed.
-2. Analyze the codebase to identify any major new modules, UI panels, or core feature additions.
-3. Open [README.md](file:///h:/Blender/RexTools3/README.md).
-4. Update the **Key Features** section to include the latest additions.
-5. Ensure the **Installation** or **Requirements** sections are updated if dependencies or setup steps have changed.
-6. Maintain the existing tone and professional formatting of the README.
-7. Present the updated README to the user for review.
+1. Inform the user and confirm whether `README.md` should be updated for recently implemented features or UI changes.
+2. Analyze recent additions (new panels, operators, keymaps, or workflows).
+3. Open [README.md](file:///e:/Nazmul/RexToolsBlender/README.md).
+4. Update relevant sections:
+   - **Key Features** / sub-tool summaries to describe new operators or workflows.
+   - **Installation / Requirements** if dependencies, platform notes, or blender requirements changed.
+5. Maintain clear markdown formatting, consistent emoji headings, and concise explanations.
+6. Present the updated README to the user for review.

@@ -44,6 +44,7 @@ A dedicated panel for rapid PBR material setup and management.
 - **Debug Preview**: Real-time visual debugging of individual texture slots or mixed shader outputs.
 - **Open in UV/Image Editor**: Instantly view any assigned texture slot in the UV/Image editor. Automatically detects and preserves active UV editor workspace views.
 - **Set Viewport Color**: One-click button to automatically sample, calculate, and update the material's viewport color, metallic, and roughness values to match its base color and active tints.
+- **Material Graph Converter**: Automatically trace and convert regular or imported materials (FBX, OBJ, glTF, manual) into Easy PBR format. Supports glTF packed ORM textures, DirectX normal map flips, and includes an interactive confirmation dialog for partial conversions while strictly retaining complex procedural nodes.
 - **More Controls**: Easy access to strength, tint, and alpha clipping parameters organized in clean, collapsible panels.
 
 ### 🎨 Material Tools

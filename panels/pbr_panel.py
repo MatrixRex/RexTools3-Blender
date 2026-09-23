@@ -62,21 +62,34 @@ class PBR_PT_MaterialPanel(Panel):
         row = layout.row(align=True)
         row.prop(mat, "name", text="Material")
         row.prop(mat.pbr_settings, "use_packed_mode", text="Packing Mode", icon='PACKAGE', toggle=True)
-        
+        row.operator("pbr.convert_to_easy_pbr", text="", icon='NODETREE')
         
         layout.separator()
 
         # Ensure nodes
         if not mat.use_nodes:
-            layout.operator("pbr.create_material", text="Enable Nodes", icon='NODETREE')
+            row = layout.row(align=True)
+            row.operator("pbr.create_material", text="Enable Nodes", icon='NODETREE')
+            row.operator("pbr.convert_to_easy_pbr", text="Convert to Easy PBR", icon='FILE_REFRESH')
             return
 
         nodes = mat.node_tree.nodes
         principled = next((n for n in nodes if n.type == 'BSDF_PRINCIPLED'), None)
         if not principled:
             layout.label(text="No Principled BSDF found")
-            layout.operator("pbr.create_material", text="Setup PBR Material", icon='MATERIAL')
+            row = layout.row(align=True)
+            row.operator("pbr.create_material", text="Setup PBR Material", icon='MATERIAL')
+            row.operator("pbr.convert_to_easy_pbr", text="Convert to Easy PBR", icon='NODETREE')
             return
+
+        # Regular / Imported Material Detection Prompt
+        from ..core import pbr_converter
+        if not pbr_converter.is_easy_pbr_material(mat):
+            box = layout.box()
+            box.label(text="Regular / Imported Material Detected", icon='INFO')
+            col = box.column(align=True)
+            col.operator("pbr.convert_to_easy_pbr", text="Convert to Easy PBR", icon='NODETREE')
+            layout.separator()
 
         # Texture Auto Loader (Collapsible Section)
         loader_box = layout.box()

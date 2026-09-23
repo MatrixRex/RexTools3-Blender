@@ -38,6 +38,8 @@ class PBR_PT_BatchMaterialPanel(Panel):
             utils_col.operator("rextools3.extract_textures", text="Extract Textures", icon='PACKAGE')
         if not prefs or prefs.enable_tool_replace_materials:
             utils_col.operator("rextools3.replace_materials", text="Replace Mats", icon='SHADING_TEXTURE')
+        utils_col.operator("pbr.convert_to_easy_pbr", text="Convert to Easy PBR", icon='NODETREE')
+        utils_col.operator("pbr.batch_convert_to_easy_pbr", text="Batch Convert to Easy PBR", icon='FILE_REFRESH')
 
         # 2. Batch Texture Assign Box
         if not prefs or prefs.enable_tool_batch_texture_assign:

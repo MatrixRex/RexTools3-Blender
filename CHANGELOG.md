@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-09-23
+
+### Added
+
+- **Easy PBR Material Graph Converter**:
+  - Implemented automatic tracing and conversion of regular (manually created or imported via FBX, OBJ, glTF) materials to RexTools3's Easy PBR graph system.
+  - Recognizes standard PBR sockets: Base Color, AO, Roughness, Metallic, Normal, Alpha, Emission, and Displacement/Height.
+  - Auto-detects glTF packed ORM textures (`R` -> AO, `G` -> Roughness, `B` -> Metallic) and sets up channel split nodes.
+  - Automatically identifies DirectX green channel inverted normal maps (`flip_normal_g`), alpha clip thresholds, tints, and UV tiling.
+  - **Strict Node Retention on Partial Conversions**: If a material contains complex or procedural networks (e.g., Noise Textures, ColorRamps, custom procedural shaders), those nodes and their socket connections are strictly retained without breaking or deleting them.
+  - **Confirmation Dialog**: Added an interactive confirmation dialog for partially convertible materials detailing convertible vs. retained components before executing changes. Fully convertible materials convert cleanly without interruption.
+  - **Batch Material Conversion**: Added `pbr.batch_convert_to_easy_pbr` to batch-convert all unique materials on selected mesh objects.
+  - **UI Integration**: Added detection prompts and conversion operators in both the Easy PBR panel (`PBR_PT_MaterialPanel`) and Material Tools panel (`PBR_PT_BatchMaterialPanel`).
+
 ## [0.4.0] - 2026-07-16
 
 ### Added

@@ -103,3 +103,37 @@ def get_invert_output_socket(inv_node):
     if not inv_node:
         return None
     return inv_node.outputs.get('Color') or (inv_node.outputs[0] if inv_node.outputs else None)
+
+
+def create_mix_rgba_node(nodes, name=None, blend_type='MULTIPLY'):
+    """Create ShaderNodeMix with RGBA data_type (Blender 3.4+) or ShaderNodeMixRGB (older)."""
+    try:
+        node = nodes.new('ShaderNodeMix')
+        node.data_type = 'RGBA'
+    except Exception:
+        node = nodes.new('ShaderNodeMixRGB')
+    node.blend_type = blend_type
+    if name:
+        node.name = name
+    return node
+
+
+def get_mix_a_socket(node):
+    """Get first input socket (A / Color1) of a mix node across Blender versions."""
+    if not node:
+        return None
+    return node.inputs.get('A') or node.inputs.get('Color1') or (node.inputs[1] if len(node.inputs) > 1 else None)
+
+
+def get_mix_b_socket(node):
+    """Get second input socket (B / Color2) of a mix node across Blender versions."""
+    if not node:
+        return None
+    return node.inputs.get('B') or node.inputs.get('Color2') or (node.inputs[2] if len(node.inputs) > 2 else None)
+
+
+def get_mix_output_socket(node):
+    """Get output socket (Result / Color) of a mix node across Blender versions."""
+    if not node:
+        return None
+    return node.outputs.get('Result') or node.outputs.get('Color') or (node.outputs[0] if node.outputs else None)

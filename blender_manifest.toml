@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "rextools3"
-version = "0.4.0"
+version = "0.4.1"
 name = "Rextools3"
 tagline = "Toolset for 3D modeling, UV editing, rigging, and exporting"
 maintainer = "matrix rex"

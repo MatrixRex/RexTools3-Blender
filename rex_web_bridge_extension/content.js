@@ -10,7 +10,6 @@
 
   let lastProcessedTimestamp = 0;
   let isProcessing = false;
-  let isConnected = false;
 
   function getCurrentPlatform() {
     const host = window.location.hostname.toLowerCase();
@@ -22,8 +21,12 @@
   const currentPlatform = getCurrentPlatform();
   console.log(`%c[RexTools3 Web Bridge]%c Active on platform: ${currentPlatform || "unknown"}`, "color: #00ff88; font-weight: bold;", "color: inherit;");
 
+  // Clean up any old floating badge if present from previous sessions
+  const oldBadge = document.getElementById("rextools-bridge-badge");
+  if (oldBadge) oldBadge.remove();
+
   // ─────────────────────────────────────────────────────────────────────────
-  // UI Helpers (In-Page Toast & Status Badge)
+  // UI Helpers (Transient In-Page Toast for model import events)
   // ─────────────────────────────────────────────────────────────────────────
 
   function showToast(message, type = "info", duration = 4500) {
@@ -74,66 +77,6 @@
       toast.style.transform = "translateY(-15px)";
       setTimeout(() => toast.remove(), 350);
     }, duration);
-  }
-
-  function createStatusBadge() {
-    if (document.getElementById("rextools-bridge-badge")) return;
-
-    const platformLabel = currentPlatform === "meshy" ? "Meshy" : (currentPlatform === "tripo" ? "Tripo" : "Web");
-    const badge = document.createElement("div");
-    badge.id = "rextools-bridge-badge";
-    badge.innerHTML = `
-      <div id="rextools-badge-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #666; transition: background 0.3s;"></div>
-      <span id="rextools-badge-text" style="font-size: 11px; font-weight: 600; color: #a0a0a0;">RexTools (${platformLabel})</span>
-    `;
-
-    Object.assign(badge.style, {
-      position: "fixed",
-      bottom: "16px",
-      right: "16px",
-      zIndex: "999999",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      background: "rgba(18, 20, 26, 0.85)",
-      backdropFilter: "blur(8px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "20px",
-      padding: "6px 12px",
-      fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-      userSelect: "none",
-      cursor: "pointer",
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-      transition: "all 0.2s ease",
-    });
-
-    badge.title = `RexTools3 AI Web Bridge (${platformLabel}) - Click to test Blender connection`;
-    badge.addEventListener("click", () => {
-      checkBridgeStatus(true);
-    });
-
-    document.body.appendChild(badge);
-  }
-
-  function updateBadgeStatus(connected, targetService = null) {
-    isConnected = connected;
-    const dot = document.getElementById("rextools-badge-dot");
-    const text = document.getElementById("rextools-badge-text");
-    if (!dot || !text) return;
-
-    const platformLabel = currentPlatform === "meshy" ? "Meshy" : (currentPlatform === "tripo" ? "Tripo" : "Bridge");
-
-    if (connected) {
-      dot.style.background = "#00ff88";
-      dot.style.boxShadow = "0 0 8px #00ff88";
-      text.style.color = "#e0e0e0";
-      text.textContent = `RexTools (${platformLabel})`;
-    } else {
-      dot.style.background = "#666666";
-      dot.style.boxShadow = "none";
-      text.style.color = "#888888";
-      text.textContent = `RexTools Idle (${platformLabel})`;
-    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -535,7 +478,7 @@
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Main Polling Loop (Fallback & Ping)
+  // Main Polling Loop (Fallback & Event Processing)
   // ─────────────────────────────────────────────────────────────────────────
 
   async function checkBridgeStatus(userInitiated = false) {
@@ -549,7 +492,6 @@
 
       if (!res.ok) throw new Error("Status error");
       const status = await res.json();
-      updateBadgeStatus(true, status.service);
 
       if (userInitiated) {
         showToast("Blender RexTools3 is connected and ready!", "success", 3000);
@@ -579,18 +521,11 @@
         isProcessing = false;
       }
     } catch (e) {
-      updateBadgeStatus(false);
       if (userInitiated) {
         showToast("Blender RexTools3 is not reachable. Is Blender running?", "error", 4000);
       }
     }
   }
-
-  // Initialize badge and start polling
-  window.addEventListener("DOMContentLoaded", () => {
-    createStatusBadge();
-  });
-  createStatusBadge();
 
   setInterval(checkBridgeStatus, POLL_INTERVAL);
   checkBridgeStatus();

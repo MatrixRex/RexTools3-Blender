@@ -693,6 +693,11 @@ class Rextools3AIWebBridgeProperties(PropertyGroup):
         name="Last Model Name",
         default=""
     )
+    show_settings: BoolProperty(
+        name="Settings",
+        description="Show bridge and model preparation settings",
+        default=False
+    )
 
 
 class PBRMaterialSettings(PropertyGroup):

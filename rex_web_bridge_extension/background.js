@@ -1,6 +1,7 @@
 /**
  * RexTools3 AI 3D Web Bridge - Background Service Worker
- * Manages tab switching, window focusing, and bridge status monitoring.
+ * Manages tab switching, window focusing, bridge status monitoring,
+ * and live extension icon status dot (Green = Connected, Red = Disconnected).
  */
 
 const BRIDGE_PORT = 28394;
@@ -9,8 +10,35 @@ const POLL_INTERVAL = 1000;
 
 let lastProcessedTimestamp = 0;
 let isPolling = false;
+let currentConnectedState = null;
 
 console.log("[RexTools3 Background] Service Worker started.");
+
+/**
+ * Updates the extension icon status dot in the Chrome toolbar.
+ * Shows a green dot on successful bridge connection, or red if disconnected.
+ */
+function updateExtensionStatusIcon(connected) {
+  if (currentConnectedState === connected) return;
+  currentConnectedState = connected;
+
+  const color = connected ? "#00E676" : "#FF3B30";
+  chrome.action.setBadgeBackgroundColor({ color: color });
+  chrome.action.setBadgeText({ text: "●" });
+  if (chrome.action.setBadgeTextColor) {
+    try {
+      chrome.action.setBadgeTextColor({ color: "#FFFFFF" });
+    } catch (e) {}
+  }
+  chrome.action.setTitle({
+    title: connected
+      ? "RexTools3 AI Web Bridge: Connected (Blender active)"
+      : "RexTools3 AI Web Bridge: Disconnected (Blender offline)"
+  });
+}
+
+// Initial state until first poll completes
+updateExtensionStatusIcon(false);
 
 async function checkBridgeStatus() {
   if (isPolling) return;
@@ -24,6 +52,9 @@ async function checkBridgeStatus() {
 
     if (!res.ok) throw new Error("Offline");
     const status = await res.json();
+
+    // Successful ping: show green dot on extension icon
+    updateExtensionStatusIcon(true);
 
     if (
       status.active &&
@@ -74,7 +105,8 @@ async function checkBridgeStatus() {
       }
     }
   } catch (e) {
-    // Offline or unreachable, normal when Blender bridge is idle
+    // Offline or unreachable: show red dot on extension icon
+    updateExtensionStatusIcon(false);
   } finally {
     isPolling = false;
   }

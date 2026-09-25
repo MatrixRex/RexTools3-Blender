@@ -700,6 +700,197 @@ class Rextools3AIWebBridgeProperties(PropertyGroup):
     )
 
 
+class Rextools3MeshyQueueItem(PropertyGroup):
+    task_id: StringProperty(name="Task ID", default="")
+    title: StringProperty(name="Title", default="")
+    task_type: StringProperty(name="Task Type", default="")
+    status: StringProperty(name="Status", default="QUEUED")
+    progress: IntProperty(name="Progress", default=0, min=0, max=100, subtype='PERCENTAGE')
+
+
+class Rextools3MeshyProperties(PropertyGroup):
+    active_tab: EnumProperty(
+        name="Tab",
+        items=[
+            ("IMAGE_TO_MESH", "Model", "Generate 3D mesh model from image"),
+            ("RETEXTURE", "UV+Tex", "Unwrap UVs and texture with image reference"),
+        ],
+        default="IMAGE_TO_MESH"
+    )
+    show_account: bpy.props.BoolProperty(
+        name="Account Settings",
+        description="Toggle inline account & cache settings",
+        default=False
+    )
+
+    # --- Image to Mesh Properties ---
+    image_source: EnumProperty(
+        name="Source",
+        items=[
+            ("FILE", "Disk File", "Load image file from computer"),
+            ("BLENDER", "Blender Image", "Use image datablock already loaded in Blender")
+        ],
+        default="FILE"
+    )
+    image_filepath: StringProperty(
+        name="Image Path",
+        description="Path to reference image file",
+        default="",
+        subtype='FILE_PATH'
+    )
+    blender_image: PointerProperty(
+        name="Blender Image",
+        type=bpy.types.Image,
+        description="Image datablock from Blender"
+    )
+    topology: EnumProperty(
+        name="Topology",
+        description="Target polygon topology type",
+        items=[
+            ("triangle", "Triangle", "Triangular mesh topology"),
+            ("quad", "Quad", "Quad dominant topology")
+        ],
+        default="triangle"
+    )
+    target_polycount: IntProperty(
+        name="Polycount",
+        description="Target polygon count for generated 3D mesh",
+        default=30000,
+        min=1000,
+        max=300000
+    )
+    polycount_smart: IntProperty(
+        name="Face Count",
+        description="Target face count for Smart Topology (T2). Max 15,000 for game-ready meshes",
+        default=5000,
+        min=500,
+        soft_min=500,
+        max=15000,
+        soft_max=15000,
+        subtype='NONE'
+    )
+    polycount_standard: IntProperty(
+        name="Polycount",
+        description="Target polygon count for Standard generation",
+        default=30000,
+        min=1000,
+        soft_min=1000,
+        max=300000,
+        soft_max=300000,
+        subtype='NONE'
+    )
+    symmetry_mode: EnumProperty(
+        name="Symmetry",
+        description="Mesh symmetry behavior",
+        items=[
+            ("auto", "Auto", "Automatically detect symmetry"),
+            ("on", "On", "Force bilateral symmetry"),
+            ("off", "Off", "Disable symmetry")
+        ],
+        default="auto"
+    )
+    should_texture: BoolProperty(
+        name="Initial Texture",
+        description="Generate an initial texture map with the mesh",
+        default=True
+    )
+    enable_pbr: BoolProperty(
+        name="Enable PBR",
+        description="Generate PBR maps (Roughness, Metallic, Normal)",
+        default=True
+    )
+    generation_mode: EnumProperty(
+        name="Generation Mode",
+        description="Model type and AI model to use for mesh generation",
+        items=[
+            ("SMART_T2", "Smart Topology T2 ⭐ (Low-Poly)", "Meshy-T2: Clean triangle topology, natively separated parts, "
+             "game-ready low-poly — best for Unity/Unreal workflows"),
+            ("STANDARD_LATEST", "Standard — Latest", "Standard high-detail mesh with Meshy's latest model (currently 7.1)"),
+            ("STANDARD_7_1", "Standard — Meshy 7.1", "Standard mesh with Meshy 7.1 (high fidelity surfaces)"),
+            ("STANDARD_6", "Standard — Meshy 6", "Standard mesh with Meshy 6"),
+            ("STANDARD_6_LITE", "Standard — Meshy 6 Lite", "Standard mesh with Meshy 6 Lite (faster, lighter)")
+        ],
+        default="SMART_T2"
+    )
+
+    # --- Retexture & UV Properties ---
+    retexture_ai_model: EnumProperty(
+        name="Texturing Model",
+        description="Select AI model version for texturing",
+        items=[
+            ("latest", "Latest (Meshy 7 / 7.1)", "Use Meshy's latest model (Meshy 7 / 7.1)"),
+            ("meshy-7.1", "Meshy 7.1", "Force Meshy 7.1 model for high fidelity textures"),
+            ("meshy-6", "Meshy 6", "Meshy 6 production model (calibrated for Delight / lighting removal)"),
+            ("meshy-6-lite", "Meshy 6 Lite", "Faster lightweight Meshy 6 model")
+        ],
+        default="latest"
+    )
+    uv_mode: EnumProperty(
+        name="UV Strategy",
+        description="Strategy for UV unwrapping and projection",
+        items=[
+            ("NEW_UNWRAP", "Dedicated Meshy UV (5 cr)", "⭐ Use Meshy's new dedicated UV unwrapper (high-quality non-overlapping islands, 5 credits)"),
+            ("PRESERVE", "Preserve Model UVs (0 cr)", "Preserve the artist's existing UV layout from Blender"),
+            ("LEGACY_AUTO", "Legacy Auto-UV (0 extra cr)", "Old implicit on-the-fly unwrapping if no UVs exist")
+        ],
+        default="NEW_UNWRAP"
+    )
+    retexture_image_source: EnumProperty(
+        name="Reference Source",
+        items=[
+            ("FILE", "Disk File", "Load reference image from computer"),
+            ("BLENDER", "Blender Image", "Use image datablock from Blender")
+        ],
+        default="FILE"
+    )
+    retexture_image_filepath: StringProperty(
+        name="Reference Image",
+        description="Reference image for style guidance",
+        default="",
+        subtype='FILE_PATH'
+    )
+    retexture_blender_image: PointerProperty(
+        name="Reference Image",
+        type=bpy.types.Image,
+        description="Image datablock from Blender"
+    )
+    text_style_prompt: StringProperty(
+        name="Style Prompt",
+        description="Optional descriptive prompt to steer texture look (e.g. 'rusted sci-fi armor')",
+        default=""
+    )
+    retexture_enable_pbr: BoolProperty(
+        name="Generate PBR",
+        description="Generate full PBR texture maps (Base Color, Roughness, Metallic, Normal)",
+        default=True
+    )
+    remove_lighting: BoolProperty(
+        name="Remove Lighting",
+        description="Remove baked shadows and specular highlights for clean PBR materials",
+        default=True
+    )
+
+    # --- Live Task & Status Runtime Properties ---
+    is_processing: BoolProperty(name="Processing", default=False)
+    replace_selected: BoolProperty(
+        name="Replace Selected Mesh",
+        description="Replace the active selected mesh in place with the resulting model",
+        default=True
+    )
+    task_type: StringProperty(name="Task Type", default="")
+    task_id: StringProperty(name="Task ID", default="")
+    task_progress: IntProperty(name="Progress", default=0, min=0, max=100, subtype='PERCENTAGE')
+    status_message: StringProperty(name="Status Message", default="Ready")
+    task_queue_items: CollectionProperty(type=Rextools3MeshyQueueItem)
+    credit_balance: IntProperty(name="Credit Balance", default=-1)
+    credit_status: StringProperty(name="Credit Status", default="")
+    last_imported_object: StringProperty(name="Last Imported Object", default="")
+    last_result_filepath: StringProperty(name="Last Result File", default="")
+    last_result_size: StringProperty(name="Last Result Size", default="")
+    last_ref_image_filepath: StringProperty(name="Last Ref Image File", default="")
+
+
+
 class PBRMaterialSettings(PropertyGroup):
     show_texture_loader: BoolProperty(
         name="Show Texture Loader",
@@ -1599,6 +1790,7 @@ def register_properties():
     bpy.types.Scene.highlow_renamer_props = PointerProperty(type=HighLowRenamerProperties)
     bpy.types.Scene.rex_marmoset_bridge_props = PointerProperty(type=Rextools3MarmosetBridgeProperties)
     bpy.types.Scene.rex_ai_web_bridge_props   = PointerProperty(type=Rextools3AIWebBridgeProperties)
+    bpy.types.Scene.rex_meshy_props           = PointerProperty(type=Rextools3MeshyProperties)
 
     wm.select_similar_threshold   = FloatProperty(name="Threshold", default=0.0, min=0.0, max=1.0)
     wm.clear_inner_uv_area_seam   = BoolProperty(name="Clear Inner", default=False)
@@ -1639,6 +1831,7 @@ def unregister_properties():
     del bpy.types.Scene.highlow_renamer_props
     del bpy.types.Scene.rex_marmoset_bridge_props
     del bpy.types.Scene.rex_ai_web_bridge_props
+    del bpy.types.Scene.rex_meshy_props
 
     del wm.select_similar_threshold
     del wm.clear_inner_uv_area_seam

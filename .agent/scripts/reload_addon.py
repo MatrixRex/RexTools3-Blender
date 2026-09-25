@@ -65,11 +65,14 @@ def reload_addon():
                     print(f"Found Blender Flask server on port {port}")
                     
                     # 2. Send reload request
+                    import os
+                    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                    addon_name = os.path.basename(root_dir)
                     reload_url = f"http://127.0.0.1:{port}/"
                     data = {
                         "type": "reload",
-                        "names": ["RexTools3"],
-                        "dirs": [r"h:\Blender\RexTools3"]
+                        "names": [addon_name, "RexTools3", "RexToolsBlender"],
+                        "dirs": [root_dir]
                     }
                     body = json.dumps(data).encode("utf-8")
                     req = urllib.request.Request(reload_url, data=body, method="POST")

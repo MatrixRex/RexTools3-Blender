@@ -22,7 +22,8 @@ PANEL_CATEGORY_MAPPINGS = [
     ("texture_oven_panel", "REXTOOLS3_PT_TextureOvenPanel", "category_texture_oven"),
     ("engine_vertex_stats", "REXTOOLS3_PT_engine_vertex_stats", "category_engine_vertex_stats"),
     ("marmoset_bridge_panel", "RexTools3MarmosetBridgePanel", "category_marmoset_bridge"),
-    ("ai_web_bridge_panel", "RexTools3AIWebBridgePanel", "category_ai_web_bridge")
+    ("ai_web_bridge_panel", "RexTools3AIWebBridgePanel", "category_ai_web_bridge"),
+    ("meshy_panel", "RexTools3MeshyPanel", "category_meshy_studio")
 ]
 
 def update_category_realtime(self, context):
@@ -106,6 +107,68 @@ def update_panel_redraw(self, context):
         print("[RexTools3] Error tagging redraw:", e)
 
 
+def update_meshy_api_key(self, context):
+    try:
+        from .core.meshy_client import save_persistent_api_key
+        save_persistent_api_key(self.meshy_api_key)
+    except Exception as e:
+        print(f"[RexTools3] Failed to persist Meshy API key: {e}")
+    try:
+        bpy.ops.wm.save_userpref()
+    except Exception:
+        pass
+    update_panel_redraw(self, context)
+
+
+def update_meshy_cache_dir(self, context):
+    try:
+        from .core.meshy_client import save_persistent_config
+        save_persistent_config({"meshy_cache_dir": self.meshy_cache_dir})
+    except Exception as e:
+        print(f"[RexTools3] Failed to persist Meshy cache dir: {e}")
+    update_panel_redraw(self, context)
+
+
+def update_meshy_use_local_cache(self, context):
+    try:
+        from .core.meshy_client import save_persistent_config
+        save_persistent_config({"meshy_use_local_cache": self.meshy_use_local_cache})
+    except Exception as e:
+        print(f"[RexTools3] Failed to persist Meshy local cache setting: {e}")
+    update_panel_redraw(self, context)
+
+
+def restore_persistent_preferences():
+    """Load persistent settings from ~/.rextools3/config.json into preferences if empty."""
+    try:
+        from .core.meshy_client import load_persistent_config
+        cfg = load_persistent_config()
+        if not cfg:
+            return
+
+        addon_name = ".".join(__package__.split(".")[:3]) if __package__ and __package__.startswith("bl_ext.") else (__package__.partition('.')[0] if __package__ else "RexTools3")
+        addon_entry = bpy.context.preferences.addons.get(addon_name)
+        if not addon_entry:
+            for name, entry in bpy.context.preferences.addons.items():
+                if "RexTools" in name:
+                    addon_entry = entry
+                    break
+        if not addon_entry or not hasattr(addon_entry, "preferences"):
+            return
+
+        prefs = addon_entry.preferences
+        saved_key = cfg.get("meshy_api_key", "").strip()
+        if saved_key and not getattr(prefs, "meshy_api_key", "").strip():
+            prefs.meshy_api_key = saved_key
+
+        saved_cache = cfg.get("meshy_cache_dir", "").strip()
+        if saved_cache and not getattr(prefs, "meshy_cache_dir", "").strip():
+            prefs.meshy_cache_dir = saved_cache
+
+        if "meshy_use_local_cache" in cfg:
+            prefs.meshy_use_local_cache = bool(cfg["meshy_use_local_cache"])
+    except Exception as e:
+        print(f"[RexTools3] Error restoring persistent preferences: {e}")
 
 
 class RexTools3Preferences(bpy.types.AddonPreferences):
@@ -256,6 +319,32 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
         description="Enable/Disable AI 3D Web Bridge panel (Meshy / Tripo)",
         default=True,
         update=update_panel_redraw,
+    )
+    enable_meshy_studio: BoolProperty(
+        name="Meshy AI Studio",
+        description="Enable/Disable native Meshy AI panel",
+        default=True,
+        update=update_panel_redraw,
+    )
+    meshy_api_key: StringProperty(
+        name="Meshy API Key",
+        description="Meshy API key from https://meshy.ai/developer",
+        default="",
+        subtype='PASSWORD',
+        update=update_meshy_api_key,
+    )
+    meshy_cache_dir: StringProperty(
+        name="Meshy Cache Dir",
+        description="Folder for downloaded Meshy models and textures (leave blank for system temp)",
+        default="",
+        subtype='DIR_PATH',
+        update=update_meshy_cache_dir,
+    )
+    meshy_use_local_cache: BoolProperty(
+        name="Use Local Blend Cache",
+        description="Store Meshy models, textures, and reference images in a 'rextools_meshy' folder next to the saved .blend file",
+        default=True,
+        update=update_meshy_use_local_cache,
     )
     marmoset_path: StringProperty(
         name="Marmoset Toolbag Path",
@@ -432,6 +521,12 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
         default="RexTools3",
         update=update_category_realtime,
     )
+    category_meshy_studio: StringProperty(
+        name="Meshy AI Category",
+        description="Sidebar tab category for the Meshy AI Studio panel",
+        default="RexTools3",
+        update=update_category_realtime,
+    )
 
     # Common Tools Sub-tools
     enable_tool_open_folder: BoolProperty(name="Open Folder", default=True, update=update_panel_redraw)
@@ -517,6 +612,24 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
     )
 
     def draw(self, context):
+        # Auto-restore persistent settings if currently empty
+        if not self.meshy_api_key:
+            try:
+                from .core.meshy_client import get_persistent_api_key
+                saved_key = get_persistent_api_key()
+                if saved_key:
+                    self.meshy_api_key = saved_key
+            except Exception:
+                pass
+        if not self.meshy_cache_dir:
+            try:
+                from .core.meshy_client import load_persistent_config
+                saved_cache = load_persistent_config().get("meshy_cache_dir", "").strip()
+                if saved_cache:
+                    self.meshy_cache_dir = saved_cache
+            except Exception:
+                pass
+
         layout = self.layout
         
         # Draw Tab Selector
@@ -591,6 +704,11 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
                 ("marmoset_path", "Marmoset Path")
             ], category_prop="category_marmoset_bridge")
             draw_panel_category(col_obj, "AI 3D Web Bridge", 'URL', "enable_ai_web_bridge", category_prop="category_ai_web_bridge")
+            draw_panel_category(col_obj, "Meshy AI Studio", 'MESH_DATA', "enable_meshy_studio", [
+                ("meshy_api_key", "API Key"),
+                ("meshy_use_local_cache", "Local Blend Cache"),
+                ("meshy_cache_dir", "Fallback/Custom Cache Dir")
+            ], category_prop="category_meshy_studio")
             box_evstat = col_obj.box()
             hdr_evstat = box_evstat.row()
             hdr_evstat.prop(self, "enable_engine_vertex_stats", text="Engine Vertex Stats", icon='SNAP_VERTEX')

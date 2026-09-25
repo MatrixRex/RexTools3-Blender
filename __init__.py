@@ -28,11 +28,17 @@ auto_load.init()
 
 
 def register():
-    from .preferences import pre_apply_panel_categories
+    from .preferences import pre_apply_panel_categories, restore_persistent_preferences
     pre_apply_panel_categories()
     
     auto_load.register()
     properties.register_properties()
+    restore_persistent_preferences()
+    try:
+        import bpy
+        bpy.app.timers.register(restore_persistent_preferences, first_interval=0.1)
+    except Exception:
+        pass
     
 
 

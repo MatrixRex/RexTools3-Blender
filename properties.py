@@ -638,6 +638,63 @@ class BatchMaterialProperties(PropertyGroup):
     items: CollectionProperty(type=MaterialBatchItem)
 
 
+class Rextools3AIWebBridgeProperties(PropertyGroup):
+    target_service: EnumProperty(
+        name="Target Service",
+        description="Target AI 3D generator web platform",
+        items=[
+            ("meshy", "Meshy", "Send model to Meshy AI (meshy.ai/workspace)"),
+            ("tripo", "Tripo 3D", "Send model to Tripo Studio (studio.tripo3d.ai)")
+        ],
+        default="meshy"
+    )
+    file_format: EnumProperty(
+        name="Format",
+        description="3D file format for bridge transfer",
+        items=[
+            ("GLB", "GLB (.glb)", "GLTF Binary (Recommended - preserves embedded textures & UVs)"),
+            ("FBX", "FBX (.fbx)", "Autodesk FBX format"),
+            ("OBJ", "OBJ (.obj)", "Wavefront OBJ format")
+        ],
+        default="GLB"
+    )
+    auto_center: BoolProperty(
+        name="Auto Center Origin",
+        description="Temporarily center model to world origin (0, 0, 0) for AI generator requirements",
+        default=True
+    )
+    apply_transforms: BoolProperty(
+        name="Apply Transforms",
+        description="Apply Location, Rotation, and Scale to exported model",
+        default=True
+    )
+    only_selected: BoolProperty(
+        name="Selected Only",
+        description="Export only selected objects",
+        default=True
+    )
+    auto_open_browser: BoolProperty(
+        name="Auto Open Browser",
+        description="Automatically open or focus the AI generator website",
+        default=True
+    )
+    server_port: IntProperty(
+        name="Server Port",
+        description="Local HTTP Bridge Server port",
+        default=28394,
+        min=1024,
+        max=65535
+    )
+    last_exported_file: StringProperty(
+        name="Last Exported File",
+        default=""
+    )
+    last_model_name: StringProperty(
+        name="Last Model Name",
+        default=""
+    )
+
+
 class PBRMaterialSettings(PropertyGroup):
     show_texture_loader: BoolProperty(
         name="Show Texture Loader",
@@ -1536,6 +1593,7 @@ def register_properties():
     bpy.types.Scene.bone_rename_props     = PointerProperty(type=BoneRenameProperties)
     bpy.types.Scene.highlow_renamer_props = PointerProperty(type=HighLowRenamerProperties)
     bpy.types.Scene.rex_marmoset_bridge_props = PointerProperty(type=Rextools3MarmosetBridgeProperties)
+    bpy.types.Scene.rex_ai_web_bridge_props   = PointerProperty(type=Rextools3AIWebBridgeProperties)
 
     wm.select_similar_threshold   = FloatProperty(name="Threshold", default=0.0, min=0.0, max=1.0)
     wm.clear_inner_uv_area_seam   = BoolProperty(name="Clear Inner", default=False)
@@ -1575,6 +1633,7 @@ def unregister_properties():
     del bpy.types.Scene.bone_rename_props
     del bpy.types.Scene.highlow_renamer_props
     del bpy.types.Scene.rex_marmoset_bridge_props
+    del bpy.types.Scene.rex_ai_web_bridge_props
 
     del wm.select_similar_threshold
     del wm.clear_inner_uv_area_seam

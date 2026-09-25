@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RexTools3 AI Web Bridge</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #12141a;
+      color: #e0e0e0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .title span {
+      color: #00ff88;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #666;
+    }
+    .dot.online {
+      background: #00ff88;
+      box-shadow: 0 0 6px #00ff88;
+    }
+    .dot.offline {
+      background: #ff4444;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #888888;
+      margin-bottom: 6px;
+    }
+    .model-info {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      word-break: break-all;
+    }
+    .model-meta {
+      font-size: 11px;
+      color: #777777;
+      margin-top: 4px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .btn-primary {
+      background: #00ff88;
+      color: #12141a;
+    }
+    .btn-primary:hover {
+      background: #22ff99;
+    }
+    .footer {
+      font-size: 11px;
+      color: #666666;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title"><span>RexTools3</span> Bridge</div>
+    <div class="status-badge" id="status-badge">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">Checking...</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Last Bridged Model</div>
+    <div class="model-info" id="model-name">None yet</div>
+    <div class="model-meta" id="model-meta">Export a model from Blender to begin</div>
+  </div>
+
+  <div class="card-title">Quick Launch</div>
+  <div class="btn-group">
+    <button class="btn btn-primary" id="open-meshy">Meshy Workspace</button>
+    <button class="btn" id="open-tripo">Tripo Studio</button>
+  </div>
+
+  <div class="footer">
+    Listens on 127.0.0.1:28394 &bull; v1.0.0
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

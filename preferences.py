@@ -21,7 +21,8 @@ PANEL_CATEGORY_MAPPINGS = [
     ("export_panel", "REXTOOLS3_PT_ExportManager", "category_rexport"),
     ("texture_oven_panel", "REXTOOLS3_PT_TextureOvenPanel", "category_texture_oven"),
     ("engine_vertex_stats", "REXTOOLS3_PT_engine_vertex_stats", "category_engine_vertex_stats"),
-    ("marmoset_bridge_panel", "RexTools3MarmosetBridgePanel", "category_marmoset_bridge")
+    ("marmoset_bridge_panel", "RexTools3MarmosetBridgePanel", "category_marmoset_bridge"),
+    ("ai_web_bridge_panel", "RexTools3AIWebBridgePanel", "category_ai_web_bridge")
 ]
 
 def update_category_realtime(self, context):
@@ -250,6 +251,12 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
         default=True,
         update=update_panel_redraw,
     )
+    enable_ai_web_bridge: BoolProperty(
+        name="AI 3D Web Bridge",
+        description="Enable/Disable AI 3D Web Bridge panel (Meshy / Tripo)",
+        default=True,
+        update=update_panel_redraw,
+    )
     marmoset_path: StringProperty(
         name="Marmoset Toolbag Path",
         description="Path to the Marmoset Toolbag executable",
@@ -419,6 +426,12 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
         default="RexTools3",
         update=update_category_realtime,
     )
+    category_ai_web_bridge: StringProperty(
+        name="AI 3D Web Bridge Category",
+        description="Sidebar tab category for the AI 3D Web Bridge panel",
+        default="RexTools3",
+        update=update_category_realtime,
+    )
 
     # Common Tools Sub-tools
     enable_tool_open_folder: BoolProperty(name="Open Folder", default=True, update=update_panel_redraw)
@@ -577,6 +590,7 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
             draw_panel_category(col_obj, "Marmoset Bridge", 'LINKED', "enable_marmoset_bridge", [
                 ("marmoset_path", "Marmoset Path")
             ], category_prop="category_marmoset_bridge")
+            draw_panel_category(col_obj, "AI 3D Web Bridge", 'URL', "enable_ai_web_bridge", category_prop="category_ai_web_bridge")
             box_evstat = col_obj.box()
             hdr_evstat = box_evstat.row()
             hdr_evstat.prop(self, "enable_engine_vertex_stats", text="Engine Vertex Stats", icon='SNAP_VERTEX')

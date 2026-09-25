@@ -41,7 +41,29 @@ ui/               Custom viewport overlay (GPU drawing, widget elements, manager
 | Theme           | Single source in `core/theme.py` — never hardcode colors                                                                |
 | Monkey-patching | `fbx_utils.py` patches Blender's FBX exporter; always restores originals                                                 |
 | Blender API     | Contains version-gated logic (see `auto_load.get_dependency_from_annotation`). Prefer existing compatibility approaches. |
-| Icons           | Do not guess or hallucinate Blender icons. Pick only from the valid set defined in [allowed_icons.md](file:///h:/Blender/RexTools3/.agent/allowed_icons.md). |
+| Icons           | Do not guess or hallucinate Blender icons. Pick only from the valid set defined in [.agent/allowed_icons.md](file:///e:/Nazmul/RexToolsBlender/.agent/allowed_icons.md). |
+| File Sizing & Refactor | Split new large/complex scripts. For existing scripts, ask before refactoring and run automated prechecks to verify functionality. |
+
+## Script Sizing, Modularity & Refactoring
+
+Avoid creating giant, monolithic single-file scripts. Adhere strictly to the following division of responsibility:
+
+- **New Scripts / Features (Proactive Splitting)**:
+  - When writing a new feature or script that grows large or complex (> 250-400 lines or handling multiple concerns), **split it into smaller, modular files following best practices**:
+    - **Core logic & utilities**: Place external API clients, heavy data manipulation, background threads, or helpers in `core/` (e.g., `core/<feature>_client.py` or `core/<feature>_utils.py`).
+    - **Operators**: Keep focused operator classes in `operators/<feature>_ops.py` or a dedicated package/subfolder (e.g., `operators/<feature>/`, which `auto_load` discovers recursively).
+    - **Panels**: Keep UI drawing code in `panels/<feature>_panel.py`.
+    - **Properties**: Register in `properties.py` or feature-specific `PropertyGroup` modules.
+  - Maintain separation of concerns: avoid embedding heavy data processing, file parsing, or HTTP requests directly inside operator `execute()` methods or UI panel drawing code.
+- **Existing / Old Scripts (Ask First & Precheck Functionality)**:
+  - Do **NOT** unilaterally break up, reorganize, or rewrite existing large scripts without user approval.
+  - When working on an existing script that is oversized or complex, **ask the user first** if they want to refactor it into smaller, modular scripts before splitting it up.
+  - **Mandatory Prechecks for Refactored Scripts**: Whenever refactoring is approved and executed, you MUST perform automated prechecks to ensure the split scripts retain complete functionality without forcing the user to manually verify:
+    1. **Symbol & Registration Parity**: Verify that all `Operator` `bl_idname`s, `Panel` `bl_idname`s, and `PropertyGroup` attributes remain strictly unchanged so keymaps, UI buttons, and property bindings still work.
+    2. **Call-Site & Import Audit**: Use `grep_search` across the repository to locate every existing import and reference to the original file/classes, updating all call sites to the new modular locations.
+    3. **Syntax & Compilation Precheck**: Run a compilation check (e.g., `py -m compileall <paths>`) or lint check to catch any import errors or circular dependencies immediately.
+    4. **Addon Reload & Clean Registration**: Trigger reload via `py .agent/scripts/reload_addon.py` to ensure Blender discovers and registers all new classes via `auto_load` with zero traceback errors.
+    5. **State & Settings Preservation**: Confirm property definitions and storage paths (e.g., `context.scene...` or `context.window_manager...`) maintain identical names and defaults so saved user states and `.blend` files remain unbroken.
 
 ## Implementation Examples (Copy-Paste Friendly)
 
@@ -127,4 +149,5 @@ python -m pyflakes .
 - **Clarification**: For design intent (why a particular operator exists or UX expectations), check `Plan.md` for feature notes and iterate with the repo owner.
 - **UV vs Image Editor**: Both editors share `'IMAGE_EDITOR'` as `area.type`. Differentiate them via `area.ui_type` (`'UV'` vs `'VIEW'`). When displaying an image, check for and preserve `'UV'` type to avoid switching a UV Editor area to an Image View.
 - **Blender Icons**: Do not hallucinate or guess icon names in panels, operators, or UI elements. Refer to the list of allowed icons in [.agent/allowed_icons.md](file:///e:/Nazmul/RexToolsBlender/.agent/allowed_icons.md) to choose a valid icon.
+- **Avoid monolithic files & precheck refactors**: Do not pack complex features into single giant scripts. For new features, proactively split logic into dedicated core/operator/panel modules. For existing scripts, ask user approval first, and always run automated prechecks (symbol parity, import audit, compilation, reload verification) to ensure zero loss of functionality.
 - **If you modify this file**: Keep it short and example-driven; avoid generic, project-agnostic advice.

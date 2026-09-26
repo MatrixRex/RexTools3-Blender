@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-09-26
+
+### Changed
+
+- **Modular Architecture Refactoring**:
+  - Proactively decoupled monolithic operator files into dedicated core utility modules adhering to clean separation of concerns:
+    - **Context Aware Selection**: Extracted pure BMesh topology traversal algorithms, loop/ring edge walkers, and bounded pathfinding to `core/bmesh_selection.py`.
+    - **RExport Operators**: Extracted collection hierarchy resolution, recursive override lookups, and export grouping to `core/export_overrides.py`. Extracted texture resolution, image extraction, and file naming to `core/export_texture_utils.py`.
+    - **Marmoset Bridge**: Extracted image caching, shader socket inspection, high/low poly group regex detection, and bake group population to `core/marmoset_utils.py`.
+    - **Meshy 3D Operators**: Extracted GLB/FBX import/export helpers, local space alignment, and in-place mesh replacement mechanics to `core/meshy_io.py`.
+  - Fixed an f-string backslash syntax incompatibility in Marmoset model import script generator for broader Python version support.
+
 ## [0.4.1] - 2026-09-23
 
 ### Added

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0] - 2026-09-26
 
+### Added
+
+- **Meshy AI Studio Integration**:
+  - Direct integration with Meshy API for 3D generative workflows, mesh creation, and automated PBR texturing from within Blender.
+  - **Image-to-3D Model Generation**:
+    - Generate 3D meshes from reference images (disk files or Blender Image datablocks) with disk file preview icons.
+    - Supports Smart Topology T2 (clean low-poly triangle topology with separated parts) and Standard modes (quad/triangle topology with configurable polycount).
+  - **Unwrap & Retexture Workflow**:
+    - **Unwrap System**: Flexible unwrapping strategies including Meshy Smart (5 cr dedicated unwrapper), Model UV (0 cr to preserve existing UV layouts), and Meshy Legacy (0 cr).
+    - **Dedicated UV Unwrapping**: Dedicated button to unwrap active meshes via Meshy API, automatically switching to Model UV mode upon completion.
+    - **Texture Reference**: Steer texture styles via reference images and prompt guidance.
+    - **PBR Maps & Delight**: Generate full PBR texture sets (Albedo, Normal, Roughness, Metallic) with optional delight / lighting removal.
+  - **Task Queue & Parallel Background Worker**:
+    - Non-blocking multi-task parallel queue (up to 2 concurrent tasks) with individual task cancellation.
+    - Interactive progress sliders in sidebar Task Queue and centered viewport status bar progress widget.
+    - Automatic background credit balance refresh and persistent API key/cache directory configuration in preferences.
+
 ### Changed
 
 - **Modular Architecture Refactoring**:

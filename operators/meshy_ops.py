@@ -305,6 +305,8 @@ def _meshy_task_timer():
                         if props:
                             props.last_imported_object = new_mesh.name
                         if task_type == 'UV_UNWRAP_ONLY':
+                            if props:
+                                props.uv_mode = 'PRESERVE'
                             notify.success(f"Selected mesh '{new_mesh.name}' replaced with UV unwrapped model!")
                         else:
                             notify.success(f"Selected mesh '{new_mesh.name}' replaced with PBR textured model!")

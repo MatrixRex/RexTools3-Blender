@@ -246,12 +246,10 @@ class RexTools3MeshyPanel(Panel):
             layout.separator(factor=0.3)
 
             box_uv = layout.box()
-            box_uv.label(text="UV Unwrapping Strategy:", icon='UV')
+            box_uv.label(text="Unwrap System:", icon='UV')
             box_uv.prop(props, "uv_mode", text="")
 
             if props.uv_mode == 'NEW_UNWRAP':
-                box_uv.label(text="Dedicated Meshy Unwrapper (5 cr)", icon='INFO')
-                box_uv.label(text="Generates clean, non-overlapping UV layout.")
                 row_uw_btn = box_uv.row()
                 row_uw_btn.enabled = is_mesh
                 btn_uw_text = "+ Queue UV Unwrap (5 cr)" if props.is_processing else "Unwrap UVs Only (5 cr)"
@@ -260,15 +258,11 @@ class RexTools3MeshyPanel(Panel):
                     text=btn_uw_text,
                     icon='UV'
                 )
-            elif props.uv_mode == 'PRESERVE':
-                box_uv.label(text="Preserves artist's existing UVs from Blender.", icon='INFO')
-            else:
-                box_uv.label(text="Legacy implicit unwrapping on-the-fly.", icon='INFO')
 
             layout.separator(factor=0.3)
 
             box_style = layout.box()
-            box_style.label(text="Style Reference Guidance:", icon='IMAGE')
+            box_style.label(text="Texture Reference:", icon='IMAGE')
             row_rsrc = box_style.row(align=True)
             row_rsrc.prop(props, "retexture_image_source", expand=True)
 
@@ -301,7 +295,7 @@ class RexTools3MeshyPanel(Panel):
             if props.is_processing:
                 btn_text = "+ Queue UV & Texture" if props.uv_mode == 'NEW_UNWRAP' else "+ Queue Textures"
             else:
-                btn_text = "Unwrap (New API) & Texture" if props.uv_mode == 'NEW_UNWRAP' else "Generate PBR Textures"
+                btn_text = "Unwrap & Texture" if props.uv_mode == 'NEW_UNWRAP' else "Generate PBR Textures"
             btn_col.operator(
                 "rextools3.meshy_retexture",
                 text=btn_text,

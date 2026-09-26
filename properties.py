@@ -826,12 +826,12 @@ class Rextools3MeshyProperties(PropertyGroup):
         default="latest"
     )
     uv_mode: EnumProperty(
-        name="UV Strategy",
+        name="Unwrap System",
         description="Strategy for UV unwrapping and projection",
         items=[
-            ("NEW_UNWRAP", "Dedicated Meshy UV (5 cr)", "⭐ Use Meshy's new dedicated UV unwrapper (high-quality non-overlapping islands, 5 credits)"),
-            ("PRESERVE", "Preserve Model UVs (0 cr)", "Preserve the artist's existing UV layout from Blender"),
-            ("LEGACY_AUTO", "Legacy Auto-UV (0 extra cr)", "Old implicit on-the-fly unwrapping if no UVs exist")
+            ("NEW_UNWRAP", "Meshy Smart (5 cr)", "⭐ Use Meshy's dedicated smart UV unwrapper (high-quality non-overlapping islands, 5 credits)"),
+            ("PRESERVE", "Model UV (0 cr)", "Preserve the artist's existing UV layout from Blender"),
+            ("LEGACY_AUTO", "Meshy Legacy (0 cr)", "Legacy on-the-fly unwrapping if no UVs exist")
         ],
         default="NEW_UNWRAP"
     )

@@ -189,6 +189,25 @@ A keyboard-driven deletion and utilities system inside Mesh Edit Mode that displ
 - **Node Socket Inspector**: View detailed socket info (names, IDs, types) for any selected node in the Shader Editor.
 - **Node Layout**: Automatically organize shader nodes into a clean, hierarchical layout. Accessible via Shader Editor context menu or the `RexTools3` sidebar.
 
+### 🤖 Meshy AI Studio
+
+**Location:** `RexTools3 panel > Meshy AI Studio`
+
+Direct integration with Meshy API for 3D generative workflows and automated PBR retexturing from within Blender.
+
+- **Model Generation (Image to Mesh)**:
+  - Generate full 3D meshes from reference images (from disk or Blender Image datablocks).
+  - Supports Smart Topology T2 (clean low-poly triangle topology) and Standard modes (quad/triangle topology with configurable polycount).
+- **Unwrap & Retexture**:
+  - **Unwrap System**: Flexible unwrapping modes:
+    - **Meshy Smart (5 cr)**: Dedicated high-quality non-overlapping UV unwrapper.
+    - **Model UV (0 cr)**: Preserves existing model UV layouts created in Blender.
+    - **Meshy Legacy (0 cr)**: Fast implicit unwrapping.
+  - **Standalone UV Unwrapping**: Dedicated button to unwrap active meshes via Meshy API; automatically switches to **Model UV** mode upon completion.
+  - **Texture Reference**: Drive texture styling using reference images and descriptive text prompts.
+  - **PBR Generation & Delight**: Generate full PBR texture sets (Color, Normal, Roughness, Metallic) with optional delight / lighting removal.
+- **Task Queue & Live Progress**: Non-blocking background task worker with progress sliders and cancellation controls directly in the sidebar.
+
 ## 📥 Installation
 
 1. Download the latest release as a `.zip` file.

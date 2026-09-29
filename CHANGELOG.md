@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2026-09-29
+
+### Added
+
+- **Cleanup Tools → Directional Quads** (Edit Mode, selected faces): Rebuilds triangles and ngons (and optionally existing quads) into quads whose edge flow follows world X, Y or Z. Vertices are never added or moved by the pairing, and the selection border is kept.
+  - **Loop Continuity** grows coherent edge loops from the best-aligned areas; **Axis Strength**, **Re-flow Quads**, **Minimize Triangles**, face/shape angle limits and delimit (seams, sharp, materials, UVs) are in the redo panel.
+  - Leftover triangles are cleaned up: pairs one quad apart are re-split into two quads with no vertex change, and **Collapse Leftover Tris** removes the rest by collapsing the few quads between them (one vertex per quad crossed, **Max Quads Between**).
+- **Cleanup Tools → Quad Patch** (Edit Mode): Rebuilds a selected patch as a clean quad grid, including cases Grid Fill can't handle. Corners are found automatically and sides with different vertex counts are balanced: **Split Border** splits only the needed border edges (the outside face gains a vertex), or leaves one triangle per missing vertex when off. The grid is laid onto the original surface, keeping UVs, vertex weights and shape keys. **Relax** and **Evenness** sliders even out spacing; several separate patches can be rebuilt at once.
+- **Cleanup Tools → Strip Transition** (Edit Mode): Rebuilds a strip segment that changes width (e.g. 4→2, 3→1, or 2→4) with quads only, keeping its border. Odd changes (e.g. 3→2) use an existing extra rail vertex, split one rail edge (**Split Border**), or leave a single triangle. **Position** sets where the width change happens.
+- **Preferences**: Toggles for Directional Quads, Quad Patch and Strip Transition under Cleanup Tools.
+
+### Fixed
+
+- **PBR**: Removing a texture slot no longer deletes shared nodes (Principled BSDF, material output, PBRMapping/PBRTexCoord, or other slots' mix/math nodes).
+- **PBR**: Clean Principled-only materials now get PBRTexCoord/PBRMapping created automatically so Easy PBR controls work, and materials whose emission/alpha links use non-Easy-PBR nodes are rejected by the Easy PBR check.
+
 ## [0.5.2] - 2026-09-29
 
 ### Added

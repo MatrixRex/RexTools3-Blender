@@ -540,6 +540,9 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
     # Cleanup Tools Sub-tools
     enable_tool_clean_objects: BoolProperty(name="Clean Objects", default=True, update=update_panel_redraw)
     enable_tool_checker_dissolve: BoolProperty(name="Checker Dissolve", default=True, update=update_panel_redraw)
+    enable_tool_directional_quads: BoolProperty(name="Directional Quads", default=True, update=update_panel_redraw)
+    enable_tool_quad_patch: BoolProperty(name="Quad Patch", default=True, update=update_panel_redraw)
+    enable_tool_strip_transition: BoolProperty(name="Strip Transition", default=True, update=update_panel_redraw)
     enable_tool_clean_modifiers: BoolProperty(name="Clean Modifiers", default=True, update=update_panel_redraw)
     enable_tool_missing_textures: BoolProperty(name="Missing Textures Scanner", default=True, update=update_panel_redraw)
     enable_tool_purge_orphans: BoolProperty(name="Purge Orphans", default=True, update=update_panel_redraw)
@@ -759,6 +762,9 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
             draw_panel_category(col_obj_edit, "Cleanup Tools", 'BRUSH_DATA', "enable_cleanup_tools", [
                 ("enable_tool_clean_objects", "Clean Objects"),
                 ("enable_tool_checker_dissolve", "Checker Dissolve"),
+                ("enable_tool_directional_quads", "Directional Quads"),
+                ("enable_tool_quad_patch", "Quad Patch"),
+                ("enable_tool_strip_transition", "Strip Transition"),
                 ("enable_tool_clean_modifiers", "Clean Modifiers"),
                 ("enable_tool_missing_textures", "Missing Textures Scanner"),
                 ("enable_tool_purge_orphans", "Purge Orphans")

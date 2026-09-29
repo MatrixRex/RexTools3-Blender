@@ -33,8 +33,9 @@ class RexTools3CleanupToolsPanel(bpy.types.Panel):
         # Clean Objects Box
         show_clean_box = (
             not prefs or 
-            prefs.enable_tool_clean_objects or 
-            (prefs.enable_tool_checker_dissolve and context.mode == 'EDIT_MESH')
+            prefs.enable_tool_clean_objects or
+            (context.mode == 'EDIT_MESH' and (prefs.enable_tool_checker_dissolve or prefs.enable_tool_directional_quads
+                                              or prefs.enable_tool_quad_patch or prefs.enable_tool_strip_transition))
         )
         if show_clean_box:
             box = layout.box()
@@ -48,6 +49,19 @@ class RexTools3CleanupToolsPanel(bpy.types.Panel):
             
             if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_checker_dissolve):
                 box.operator("mesh.checker_dissolve", text="Checker Dissolve", icon='MOD_DECIM')
+
+            if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_directional_quads):
+                col = box.column(align=True)
+                col.label(text="Directional Quads", icon='MESH_GRID')
+                row = col.row(align=True)
+                for axis in ('X', 'Y', 'Z'):
+                    row.operator("rextools3.directional_quads", text=axis).axis = axis
+
+            if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_quad_patch):
+                box.operator("rextools3.quad_patch", text="Quad Patch", icon='GRID')
+
+            if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_strip_transition):
+                box.operator("rextools3.strip_transition", text="Strip Transition", icon='FULLSCREEN_EXIT')
 
         # Clean Modifiers Box
         if not prefs or prefs.enable_tool_clean_modifiers:

@@ -150,6 +150,8 @@ def _replace_or_import_mesh(result_path: str, target_obj_name: str = "", replace
     - Adopts the original object name
     - Deletes the original object
     - Switches 3D Viewport shading to 'MATERIAL'
+    When a target mesh exists, its original quads/n-gons are kept and only Meshy's UVs and
+    material are transferred onto them (see core/meshy_topology.py).
     """
     if not os.path.isfile(result_path) or os.path.getsize(result_path) == 0:
         raise FileNotFoundError(f"Result model file is empty or missing: {result_path}")
@@ -167,6 +169,14 @@ def _replace_or_import_mesh(result_path: str, target_obj_name: str = "", replace
 
     if not new_mesh:
         raise ValueError(f"Model was imported ({ext.upper()}), but no mesh object was found.")
+
+    if target_obj and target_obj.type == 'MESH':
+        from . import meshy_topology, notify
+        try:
+            kept, split = meshy_topology.rebuild_with_original_topology(target_obj, new_mesh)
+            notify.info(f"Original topology kept: {kept} polygons intact, {split} split along UV seams.")
+        except meshy_topology.TopologyMatchError as e:
+            notify.warning(f"Could not keep original topology ({e}); using Meshy's triangulated mesh.")
 
     if replace_selected and target_obj and target_obj.type == 'MESH':
         orig_name = target_obj.name

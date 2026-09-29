@@ -205,6 +205,8 @@ Direct integration with Meshy API for 3D generative workflows and automated PBR 
     - **Meshy Smart (5 cr)**: Dedicated high-quality non-overlapping UV unwrapper.
     - **Model UV (0 cr)**: Preserves existing model UV layouts created in Blender.
     - **Meshy Legacy (0 cr)**: Fast implicit unwrapping.
+  - **Original Topology Preserved**: Meshy returns triangles; its UVs and material are transferred back onto your original quads/n-gons (only polygons cut by a UV seam along a diagonal are split).
+  - **Auto Unwrap System**: Picks **Model UV** when the active mesh has UV maps, otherwise **Meshy Smart**.
   - **Standalone UV Unwrapping**: Dedicated button to unwrap active meshes via Meshy API; automatically switches to **Model UV** mode upon completion.
   - **Texture Reference**: Drive texture styling using reference images and descriptive text prompts.
   - **PBR Generation & Delight**: Generate full PBR texture sets (Color, Normal, Roughness, Metallic) with optional delight / lighting removal.

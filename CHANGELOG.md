@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-09-30
+
+### Added
+
+- **Meshy AI Studio**: Original topology is now preserved when unwrapping or texturing an existing mesh. Meshy returns triangles, so its UVs and material are transferred back onto the original quads/n-gons (vertex order, shape keys and shading flags are kept). Only polygons cut by a UV seam along a triangulation diagonal are split into triangles, and the result reports how many were kept or split. Falls back to Meshy's triangulated mesh with a warning if the result can't be matched. The logic lives in `core/meshy_topology.py`.
+- **Meshy AI Studio**: The Unwrap System is now picked automatically from the active mesh: **Model UV** if it has UV maps, **Meshy Smart** if it has none.
+
 ## [0.5.1] - 2026-09-29
 
 ### Added

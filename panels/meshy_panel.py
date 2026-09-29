@@ -351,9 +351,53 @@ class RexTools3MeshyPanel(Panel):
             row_lbtns.operator("rextools3.meshy_import_last", text="Import at Cursor", icon='IMPORT')
 
 
+# ---------------------------------------------------------------------------
+# Auto-pick the Unwrap System from the active mesh: existing UVs -> Model UV,
+# no UVs -> Meshy Smart.
+# ---------------------------------------------------------------------------
+_msgbus_owner = object()
+
+
+def _auto_select_uv_mode():
+    try:
+        props = getattr(bpy.context.scene, "rex_meshy_props", None)
+        obj = bpy.context.view_layer.objects.active
+        if props is None or obj is None or obj.type != 'MESH':
+            return
+        mode = 'PRESERVE' if len(obj.data.uv_layers) else 'NEW_UNWRAP'
+        if props.uv_mode != mode:
+            props.uv_mode = mode
+    except Exception:
+        pass
+
+
+def _subscribe_active_object():
+    bpy.msgbus.clear_by_owner(_msgbus_owner)
+    bpy.msgbus.subscribe_rna(
+        key=(bpy.types.LayerObjects, "active"),
+        owner=_msgbus_owner,
+        args=(),
+        notify=_auto_select_uv_mode,
+    )
+
+
+@bpy.app.handlers.persistent
+def _on_load_post(_dummy):
+    _subscribe_active_object()
+    _auto_select_uv_mode()
+
+
 def register():
-    pass
+    _subscribe_active_object()
+    if _on_load_post not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(_on_load_post)
+    bpy.app.timers.register(_auto_select_uv_mode, first_interval=0.5)
 
 
 def unregister():
+    bpy.msgbus.clear_by_owner(_msgbus_owner)
+    if _on_load_post in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.remove(_on_load_post)
+    if bpy.app.timers.is_registered(_auto_select_uv_mode):
+        bpy.app.timers.unregister(_auto_select_uv_mode)
     _clear_preview_cache()

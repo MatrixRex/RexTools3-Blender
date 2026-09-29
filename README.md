@@ -167,6 +167,9 @@ A keyboard-driven deletion and utilities system inside Mesh Edit Mode that displ
 * **Clear Seams:** Clear all seams from Mesh.
 * **Clean Modifiers:** Remove hidden or all modifiers.
 * **Cheker Dissolve:** Easy way to decimate evenly looped cylendrical geometries.
+* **Directional Quads** *(Edit Mode)*: Turn the selected triangles and ngons (and messy quads) into quads whose edge flow follows world X, Y or Z. Keeps the selection border; can also clean up leftover triangles by removing a few vertices.
+* **Quad Patch** *(Edit Mode)*: Rebuild a selected patch as a clean quad grid, including cases Grid Fill can't handle (sides with different vertex counts, unclear corners, curved surfaces). Keeps the shape, UVs, vertex weights and shape keys. Options: **Split Border**, **Relax**, **Evenness**.
+* **Strip Transition** *(Edit Mode)*: Change a strip's width (e.g. 4→2, 3→1, or back again) using only quads. Select from the wide part to the narrow part.
 
 ### 📐 UV Tools
 

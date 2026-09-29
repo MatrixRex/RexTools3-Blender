@@ -3,6 +3,28 @@ import bpy
 from bpy.types import Operator
 from bpy.props import StringProperty
 
+SHARED_PBR_NODES = {
+    'PBRTexCoord', 'PBRMapping',
+    'BaseTintMix', 'AOMix', 'EmissionTintMix',
+    'RoughnessMath', 'MetallicMath', 'NormalMap', 'AlphaMath', 'AlphaClip', 'HeightDisplace'
+}
+
+
+def _is_protected_node(node, input_name=None):
+    if not node:
+        return True
+    if node.type in ('BSDF_PRINCIPLED', 'OUTPUT_MATERIAL', 'MAPPING', 'TEX_COORD'):
+        return True
+    if node.name in ('PBRTexCoord', 'PBRMapping'):
+        return True
+    # If deleting a specific slot texture, don't cascade into mix/math nodes of other slots
+    if input_name and node.name in SHARED_PBR_NODES:
+        expected_prefix = input_name.replace(" ", "")
+        if not node.name.startswith(expected_prefix) and node.name not in (f"{expected_prefix}Math", f"{expected_prefix}TintMix"):
+            return True
+    return False
+
+
 class PBR_OT_RemoveTexture(Operator):
     bl_idname = "pbr.remove_texture"
     bl_label = "Remove Texture"
@@ -52,9 +74,10 @@ class PBR_OT_RemoveTexture(Operator):
                 # Now remove the AO chain (Mix node + anything behind B)
                 to_remove = {ao_mix}
                 if b_sock and b_sock.is_linked:
-                    # Gather AO texture and helper nodes
+                    # Gather AO texture and helper nodes, protecting mapping/texcoord/bsdf
                     def gather_local(node, out):
-                        if node in out: return
+                        if not node or node in out or _is_protected_node(node, 'AO'):
+                            return
                         out.add(node)
                         for i in node.inputs:
                             if i.is_linked:
@@ -94,10 +117,10 @@ class PBR_OT_RemoveTexture(Operator):
         if not inp_socket or not inp_socket.is_linked:
             return {'FINISHED'}
 
-        # Recursively gather all nodes feeding into this socket
+        # Recursively gather all nodes feeding into this socket, protecting shared infrastructure
         to_del = set()
         def gather_rec(node):
-            if node in to_del:
+            if not node or node in to_del or _is_protected_node(node, self.input_name):
                 return
             to_del.add(node)
             for inp in node.inputs:

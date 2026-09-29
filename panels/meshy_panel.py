@@ -212,6 +212,7 @@ class RexTools3MeshyPanel(Panel):
             col_set.prop(props, "should_texture", text="Texture")
             if props.should_texture:
                 col_set.prop(props, "enable_pbr", text="PBR Maps")
+                col_set.prop(props, "texture_resolution", text="Resolution")
 
             layout.separator(factor=0.5)
 
@@ -286,6 +287,7 @@ class RexTools3MeshyPanel(Panel):
 
             row_model = box_style.row()
             row_model.prop(props, "retexture_ai_model", text="AI Model")
+            box_style.prop(props, "retexture_resolution", text="Resolution")
 
             layout.separator(factor=0.5)
 

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-09-29
+
+### Added
+
+- **Meshy AI Studio**: Texture resolution picker (2K / 4K / 8K) on the Model and UV+Tex tabs. Available sizes follow the selected AI model (Meshy 6 Lite is limited to 2K) and 4K is the default wherever supported. 8K is flagged as costing 15 credits.
+
+### Changed
+
+- **Meshy AI Studio**: Choosing a source image on the Model tab now automatically sets the same image as the UV+Tex texture reference.
+- **Meshy AI Studio**: Disabling Texture on the Model tab now also turns off PBR Maps.
+
 ## [0.5.0] - 2026-09-26
 
 ### Added

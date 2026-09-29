@@ -234,7 +234,8 @@ def create_image_to_3d_task(
     should_remesh: bool = True,
     should_texture: bool = True,
     enable_pbr: bool = True,
-    ai_model: str = "latest"
+    ai_model: str = "latest",
+    texture_resolution: str = "4k"
 ) -> str:
     """Submit an Image-to-3D generation task. Returns task_id.
 
@@ -250,6 +251,8 @@ def create_image_to_3d_task(
         "enable_pbr": enable_pbr,
         "ai_model": ai_model
     }
+    if should_texture:
+        payload["texture_resolution"] = texture_resolution
     # topology / should_remesh are only meaningful for standard generation
     if model_type == "standard":
         payload["topology"] = topology
@@ -296,14 +299,16 @@ def create_retexture_task(
     enable_pbr: bool = True,
     remove_lighting: bool = True,
     is_task_id: bool = False,
-    ai_model: str = "latest"
+    ai_model: str = "latest",
+    texture_resolution: str = "4k"
 ) -> str:
     """Submit a Retexture task. Returns task_id."""
     payload = {
         "enable_original_uv": enable_original_uv,
         "enable_pbr": enable_pbr,
         "remove_lighting": remove_lighting,
-        "ai_model": ai_model
+        "ai_model": ai_model,
+        "texture_resolution": texture_resolution
     }
 
     if is_task_id:

@@ -700,6 +700,64 @@ class Rextools3AIWebBridgeProperties(PropertyGroup):
     )
 
 
+# Meshy texture resolutions. Only the "meshy-6-lite" model is limited to 2K.
+# 8K costs 15 credits instead of 10 and produces no emission map.
+_MESHY_TEX_RES_2K = [("2k", "2K (2048)", "2048x2048 base color texture")]
+_MESHY_TEX_RES_ALL = _MESHY_TEX_RES_2K + [
+    ("4k", "4K (4096)", "4096x4096 base color texture"),
+    ("8k", "8K (8192) (15 cr)", "8192x8192 base color texture. Costs 15 credits instead of 10; "
+     "PBR maps are generated at 4K and no emission map is produced"),
+]
+_MESHY_MESH_MODE_AI_MODEL = {
+    "SMART_T2": "meshy-t2",
+    "STANDARD_LATEST": "latest",
+    "STANDARD_7_1": "meshy-7.1",
+    "STANDARD_6": "meshy-6",
+    "STANDARD_6_LITE": "meshy-6-lite",
+}
+
+
+def _meshy_res_items(ai_model):
+    return _MESHY_TEX_RES_2K if ai_model == "meshy-6-lite" else _MESHY_TEX_RES_ALL
+
+
+def _meshy_mesh_res_items(self, context):
+    return _meshy_res_items(_MESHY_MESH_MODE_AI_MODEL.get(self.generation_mode, "latest"))
+
+
+def _meshy_retex_res_items(self, context):
+    return _meshy_res_items(self.retexture_ai_model)
+
+
+def _meshy_reset_res(self, prop_name, items):
+    """Default to 4K on models that offer it, otherwise the largest size the model supports."""
+    allowed = [i[0] for i in items]
+    try:
+        setattr(self, prop_name, "4k" if "4k" in allowed else allowed[-1])
+    except Exception:
+        pass
+
+
+def _update_meshy_generation_mode(self, context):
+    _meshy_reset_res(self, "texture_resolution", _meshy_mesh_res_items(self, context))
+
+
+def _update_meshy_retexture_ai_model(self, context):
+    _meshy_reset_res(self, "retexture_resolution", _meshy_retex_res_items(self, context))
+
+
+def _update_meshy_should_texture(self, context):
+    if not self.should_texture:
+        self.enable_pbr = False
+
+
+def _sync_meshy_reference_image(self, context):
+    """Use the model source image as the retexture reference image too."""
+    self.retexture_image_source = self.image_source
+    self.retexture_image_filepath = self.image_filepath
+    self.retexture_blender_image = self.blender_image
+
+
 class Rextools3MeshyQueueItem(PropertyGroup):
     task_id: StringProperty(name="Task ID", default="")
     title: StringProperty(name="Title", default="")
@@ -730,18 +788,21 @@ class Rextools3MeshyProperties(PropertyGroup):
             ("FILE", "Disk File", "Load image file from computer"),
             ("BLENDER", "Blender Image", "Use image datablock already loaded in Blender")
         ],
-        default="FILE"
+        default="FILE",
+        update=_sync_meshy_reference_image
     )
     image_filepath: StringProperty(
         name="Image Path",
         description="Path to reference image file",
         default="",
-        subtype='FILE_PATH'
+        subtype='FILE_PATH',
+        update=_sync_meshy_reference_image
     )
     blender_image: PointerProperty(
         name="Blender Image",
         type=bpy.types.Image,
-        description="Image datablock from Blender"
+        description="Image datablock from Blender",
+        update=_sync_meshy_reference_image
     )
     topology: EnumProperty(
         name="Topology",
@@ -792,12 +853,19 @@ class Rextools3MeshyProperties(PropertyGroup):
     should_texture: BoolProperty(
         name="Initial Texture",
         description="Generate an initial texture map with the mesh",
-        default=True
+        default=True,
+        update=_update_meshy_should_texture
     )
     enable_pbr: BoolProperty(
         name="Enable PBR",
         description="Generate PBR maps (Roughness, Metallic, Normal)",
         default=True
+    )
+    texture_resolution: EnumProperty(
+        name="Texture Resolution",
+        description="Base color texture resolution. Available sizes depend on the selected model",
+        items=_meshy_mesh_res_items,
+        default=1  # 4K
     )
     generation_mode: EnumProperty(
         name="Generation Mode",
@@ -810,7 +878,8 @@ class Rextools3MeshyProperties(PropertyGroup):
             ("STANDARD_6", "Standard — Meshy 6", "Standard mesh with Meshy 6"),
             ("STANDARD_6_LITE", "Standard — Meshy 6 Lite", "Standard mesh with Meshy 6 Lite (faster, lighter)")
         ],
-        default="SMART_T2"
+        default="SMART_T2",
+        update=_update_meshy_generation_mode
     )
 
     # --- Retexture & UV Properties ---
@@ -823,7 +892,14 @@ class Rextools3MeshyProperties(PropertyGroup):
             ("meshy-6", "Meshy 6", "Meshy 6 production model (calibrated for Delight / lighting removal)"),
             ("meshy-6-lite", "Meshy 6 Lite", "Faster lightweight Meshy 6 model")
         ],
-        default="latest"
+        default="latest",
+        update=_update_meshy_retexture_ai_model
+    )
+    retexture_resolution: EnumProperty(
+        name="Texture Resolution",
+        description="Base color texture resolution. Available sizes depend on the selected model",
+        items=_meshy_retex_res_items,
+        default=1  # 4K
     )
     uv_mode: EnumProperty(
         name="Unwrap System",

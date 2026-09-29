@@ -198,6 +198,8 @@ Direct integration with Meshy API for 3D generative workflows and automated PBR 
 - **Model Generation (Image to Mesh)**:
   - Generate full 3D meshes from reference images (from disk or Blender Image datablocks).
   - Supports Smart Topology T2 (clean low-poly triangle topology) and Standard modes (quad/triangle topology with configurable polycount).
+  - The chosen source image is automatically reused as the texture reference on the UV+Tex tab.
+  - **Texture Resolution**: Pick 2K, 4K (default), or 8K (15 cr) base color textures; sizes offered depend on the selected AI model.
 - **Unwrap & Retexture**:
   - **Unwrap System**: Flexible unwrapping modes:
     - **Meshy Smart (5 cr)**: Dedicated high-quality non-overlapping UV unwrapper.

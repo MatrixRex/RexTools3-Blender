@@ -389,7 +389,7 @@ _GENERATION_MODE_MAP = {
 }
 
 
-def _run_image_to_mesh_worker(task, api_key, image_uri, topology, polycount, symmetry, should_texture, enable_pbr, generation_mode, cache_dir):
+def _run_image_to_mesh_worker(task, api_key, image_uri, topology, polycount, symmetry, should_texture, enable_pbr, generation_mode, cache_dir, texture_resolution="4k"):
     try:
         task["status_message"] = "Submitting task to Meshy..."
         task["progress"] = 5
@@ -408,7 +408,8 @@ def _run_image_to_mesh_worker(task, api_key, image_uri, topology, polycount, sym
             should_remesh=True,
             should_texture=should_texture,
             enable_pbr=enable_pbr,
-            ai_model=ai_model
+            ai_model=ai_model,
+            texture_resolution=texture_resolution
         )
         task["meshy_task_id"] = task_id
         TASK_STATE["task_id"] = task_id
@@ -513,7 +514,8 @@ def _run_uv_unwrap_worker(task, api_key, glb_path, cache_dir):
 
 
 def _run_chained_unwrap_and_retexture_worker(
-    task, api_key, glb_path, image_ref_uri, text_prompt, enable_pbr, remove_lighting, uv_mode, cache_dir, ai_model="latest"
+    task, api_key, glb_path, image_ref_uri, text_prompt, enable_pbr, remove_lighting, uv_mode, cache_dir, ai_model="latest",
+    texture_resolution="4k"
 ):
     try:
         # --- Stage 1: Dedicated UV Unwrap if requested ---
@@ -572,7 +574,8 @@ def _run_chained_unwrap_and_retexture_worker(
             enable_pbr=enable_pbr,
             remove_lighting=remove_lighting,
             is_task_id=is_task_id,
-            ai_model=ai_model
+            ai_model=ai_model,
+            texture_resolution=texture_resolution
         )
         task["meshy_task_id"] = retexture_id
 
@@ -712,9 +715,10 @@ class REXTOOLS3_OT_meshy_image_to_mesh(Operator):
                 polycount,
                 props.symmetry_mode,
                 props.should_texture,
-                props.enable_pbr,
+                props.should_texture and props.enable_pbr,
                 props.generation_mode,
-                cache_dir
+                cache_dir,
+                props.texture_resolution
             ),
             target_obj_name="",
             replace_selected=False
@@ -851,7 +855,8 @@ class REXTOOLS3_OT_meshy_retexture(Operator):
                 props.remove_lighting,
                 props.uv_mode,
                 cache_dir,
-                props.retexture_ai_model
+                props.retexture_ai_model,
+                props.retexture_resolution
             ),
             target_obj_name=obj.name,
             replace_selected=props.replace_selected,

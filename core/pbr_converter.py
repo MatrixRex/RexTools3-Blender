@@ -46,6 +46,35 @@ def _get_upstream_nodes(socket, visited=None):
     return visited
 
 
+def ensure_easy_pbr_mapping(material):
+    """Ensures PBRTexCoord and PBRMapping nodes exist in the material."""
+    if not material or not material.use_nodes:
+        return None
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    settings = getattr(material, "pbr_settings", None)
+    tiling = getattr(settings, "pbr_tiling", (1.0, 1.0)) if settings else (1.0, 1.0)
+
+    tex_coord = nodes.get("PBRTexCoord") or nodes.new('ShaderNodeTexCoord')
+    tex_coord.name = "PBRTexCoord"
+    tex_coord.label = "PBR Texture Coordinate"
+    tex_coord.location = (-950, 0)
+
+    mapping = nodes.get("PBRMapping") or nodes.new('ShaderNodeMapping')
+    mapping.name = "PBRMapping"
+    mapping.label = "PBR Mapping"
+    mapping.location = (-750, 0)
+    try:
+        mapping.inputs['Scale'].default_value[0] = tiling[0]
+        mapping.inputs['Scale'].default_value[1] = tiling[1]
+    except Exception:
+        pass
+
+    if not mapping.inputs['Vector'].is_linked:
+        links.new(tex_coord.outputs['UV'], mapping.inputs['Vector'])
+    return mapping
+
+
 def is_easy_pbr_material(material) -> bool:
     """Check if material is already formatted and compliant with Easy PBR."""
     if not material or not material.use_nodes:
@@ -88,10 +117,36 @@ def is_easy_pbr_material(material) -> bool:
             if src.name != 'NormalMap':
                 return False
 
+        # Check Emission: if linked, should use EmissionTintMix or EmissionTex
+        em = principled.inputs.get('Emission Color') or principled.inputs.get('Emission')
+        if em and em.is_linked:
+            src = em.links[0].from_node
+            if src.name not in ('EmissionTintMix', 'EmissionTex'):
+                return False
+
+        # Check Alpha: if linked, should use AlphaMath or AlphaClip
+        alpha = principled.inputs.get('Alpha')
+        if alpha and alpha.is_linked:
+            src = alpha.links[0].from_node
+            if src.name not in ('AlphaMath', 'AlphaClip'):
+                return False
+
         return True
     else:
-        # If no textures exist, must at least have PBRMapping or PBRTexCoord to be an Easy PBR setup
-        return nodes.get("PBRMapping") is not None
+        # If no textures exist, Easy PBR can work without textures if it has PBRMapping / PBRTexCoord,
+        # or if the material consists solely of Principled BSDF (+ Output) with no foreign/unsupported nodes.
+        if nodes.get("PBRMapping") is not None or nodes.get("PBRTexCoord") is not None:
+            return True
+
+        # Check if there are any non-PBR / foreign nodes in the tree
+        allowed_types = {'BSDF_PRINCIPLED', 'OUTPUT_MATERIAL', 'MAPPING', 'TEX_COORD'}
+        for n in nodes:
+            if n.type not in allowed_types and n.name not in EASY_PBR_NODE_NAMES:
+                return False
+
+        # If it's a clean standard Principled setup, auto-ensure PBRMapping so Easy PBR controls work seamlessly
+        ensure_easy_pbr_mapping(material)
+        return True
 
 
 def analyze_material_graph(material) -> dict:

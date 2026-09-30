@@ -168,7 +168,7 @@ A keyboard-driven deletion and utilities system inside Mesh Edit Mode that displ
 * **Clean Modifiers:** Remove hidden or all modifiers.
 * **Cheker Dissolve:** Easy way to decimate evenly looped cylendrical geometries.
 * **Directional Quads** *(Edit Mode)*: Turn the selected triangles and ngons (and messy quads) into quads whose edge flow follows world X, Y or Z. Keeps the selection border; can also clean up leftover triangles by removing a few vertices.
-* **Quad Patch** *(Edit Mode)*: Rebuild a selected patch as a clean quad grid, including cases Grid Fill can't handle (sides with different vertex counts, unclear corners, curved surfaces). Keeps the shape, UVs, vertex weights and shape keys. Options: **Split Border**, **Relax**, **Evenness**.
+* **Quad Patch** *(Edit Mode)*: Rebuild a selected patch as a clean quad grid, including cases Grid Fill can't handle (sides with different vertex counts, unclear corners, curved surfaces). Keeps the shape, UVs, vertex weights and shape keys. Uneven sides are balanced by **Collapse** (*Border Tris* / *Inner Tris*: collapse a border edge to remove a triangle, without stretching UVs), **Cut Neighbours** (take a corner triangle from the neighbouring face; **Flip Cut** picks the other end) or **Split Border**. Also: **Relax**, **Evenness**.
 * **Strip Transition** *(Edit Mode)*: Change a strip's width (e.g. 4→2, 3→1, or back again) using only quads. Select from the wide part to the narrow part.
 * **Slide Relax** *(Edit Mode)*: Fix folded, overlapping faces like the spikes a bevel leaves when it overshoots. Select the vertices around the problem; each folded vertex slides back along its own edge just far enough to open up, keeping the shape. Options: **Iterations**, **Strength** (0 = only undo folds).
 

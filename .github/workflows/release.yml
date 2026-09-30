@@ -15,7 +15,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      # checkout leaves a lightweight tag behind; fetch the annotated one for its message
+      - name: Fetch the tag's message
+        run: git fetch --force --no-tags origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
 
       - name: Build extension zip
         run: python3 .github/scripts/build_extension.py "$RUNNER_TEMP/dist"

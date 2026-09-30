@@ -551,6 +551,7 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
 
     # Edit Tools Sub-tools
     enable_tool_angle_loop_select: BoolProperty(name="Angle Loop Select", default=True, update=update_panel_redraw)
+    enable_tool_thin_walls: BoolProperty(name="Thin Walls", default=True, update=update_panel_redraw)
     enable_tool_subdivide_tube: BoolProperty(name="Subdivide Tube", default=True, update=update_panel_redraw)
 
     # Pose Tools Sub-tools
@@ -747,6 +748,7 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
             col_edit = box_edit.column()
             draw_panel_category(col_edit, "Edit Tools", 'EDITMODE_HLT', "enable_edit_tools", [
                 ("enable_tool_angle_loop_select", "Angle Loop Select"),
+                ("enable_tool_thin_walls", "Thin Walls"),
                 ("enable_tool_subdivide_tube", "Subdivide Tube")
             ], category_prop="category_edit_tools")
             draw_panel_category(col_edit, "UV Mesh Tools", 'UV', "enable_uv_mesh_tools", [

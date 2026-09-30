@@ -27,11 +27,19 @@ class REXTools3EditToolsPanel(bpy.types.Panel):
         except Exception:
             prefs = None
 
-        if not prefs or prefs.enable_tool_angle_loop_select:
+        if not prefs or prefs.enable_tool_angle_loop_select or prefs.enable_tool_thin_walls:
             box = layout.box()
             box.label(text="Selection", icon='RESTRICT_SELECT_OFF')
-            box.operator("mesh.angle_loop_select", text="Angle Loop Select", icon='ORIENTATION_NORMAL')
-        
+            if not prefs or prefs.enable_tool_angle_loop_select:
+                box.operator("mesh.angle_loop_select", text="Angle Loop Select", icon='ORIENTATION_NORMAL')
+
+            if not prefs or prefs.enable_tool_thin_walls:
+                col = box.column(align=True)
+                col.label(text="Thin Walls", icon='MOD_SOLIDIFY')
+                row = col.row(align=True)
+                for side, text in (('INNER', "Inner"), ('OUTER', "Outer"), ('BOTH', "Both")):
+                    row.operator("rextools3.select_thin_walls", text=text).side = side
+
         if not prefs or prefs.enable_tool_subdivide_tube:
             box = layout.box()
             box.label(text="Tube Tools", icon='MOD_SCREW')

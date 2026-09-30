@@ -152,6 +152,13 @@ A keyboard-driven deletion and utilities system inside Mesh Edit Mode that displ
 
 - **Apply Modifiers**: Batch apply all modifiers from selected objects. Includes a customizable **Ignore List** (defaults to Armature) in the sidebar to skip specific types.
 - **Smart Join**: Combine objects while checking for UV name/count mismatches. Replaces the default `Ctrl+J` operation with a safer alternative that warns you of potential data loss during merging.
+- **Arrange → Grid**: Lay the selected objects out in a grid sorted by bounding box size, largest first. The grid size is picked automatically to come out square, and children move with their parent. Options: **Spacing**, **Largest First**, **Center On** (selection or 3D cursor), **Align Bottoms**.
+
+### ✏️ Edit Tools
+
+**Location:** `Edit Mode > RexTools3 panel`
+
+- **Thin Walls** *(Selection)*: Select the inner side, outer side or both sides of walls thinner than **Max Thickness**, like the inside of a cup or the body side of a jacket. The outer side is the one that sees more open space, or faces away from the mesh centre or the 3D cursor. Normals must point out of the mesh.
 
 ### 🖌️ Weight Tools
 
@@ -171,6 +178,7 @@ A keyboard-driven deletion and utilities system inside Mesh Edit Mode that displ
 * **Quad Patch** *(Edit Mode)*: Rebuild a selected patch as a clean quad grid, including cases Grid Fill can't handle (sides with different vertex counts, unclear corners, curved surfaces). Keeps the shape, UVs, vertex weights and shape keys. Uneven sides are balanced by **Collapse** (*Border Tris* / *Inner Tris*: collapse a border edge to remove a triangle, without stretching UVs), **Cut Neighbours** (take a corner triangle from the neighbouring face; **Flip Cut** picks the other end) or **Split Border**. Also: **Relax**, **Evenness**.
 * **Strip Transition** *(Edit Mode)*: Change a strip's width (e.g. 4→2, 3→1, or back again) using only quads. Select from the wide part to the narrow part.
 * **Slide Relax** *(Edit Mode)*: Fix folded, overlapping faces like the spikes a bevel leaves when it overshoots. Select the vertices around the problem; each folded vertex slides back along its own edge just far enough to open up, keeping the shape. Options: **Iterations**, **Strength** (0 = only undo folds).
+* **Edge Cleanup** *(Edit Mode)*: Merge the vertices close to the selected edges into them, splitting an edge where a vertex sits along it, so thin sliver faces close up. Options: **Distance**, **Include Selected** (also merge the selected edges' own vertices).
 
 ### 📐 UV Tools
 

@@ -23,7 +23,13 @@ class RexTools3ObjectToolsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         settings = context.scene.rex_common_settings
-        
+
+        addon_name = ".".join(__package__.split(".")[:3]) if __package__ and __package__.startswith("bl_ext.") else (__package__.partition('.')[0] if __package__ else "RexTools3")
+        try:
+            prefs = context.preferences.addons[addon_name].preferences
+        except Exception:
+            prefs = None
+
         col = layout.column(align=True)
         col.operator("rextools3.apply_modifiers", text="Apply Modifiers", icon='MODIFIER')
         
@@ -39,3 +45,9 @@ class RexTools3ObjectToolsPanel(bpy.types.Panel):
             row.prop(item, "modifier_type", text="")
             op = row.operator("rextools3.apply_modifiers_remove_ignore", text="", icon='REMOVE')
             op.index = i
+
+        if not prefs or prefs.enable_tool_arrange:
+            box = layout.box()
+            box.label(text="Arrange", icon='MOD_ARRAY')
+            row = box.row(align=True)
+            row.operator("rextools3.arrange_grid", text="Grid", icon='MESH_GRID')

@@ -537,6 +537,9 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
     enable_tool_bone_batch_rename: BoolProperty(name="Bone Batch Rename", default=True, update=update_panel_redraw)
     enable_tool_mesh_highlow_rename: BoolProperty(name="Mesh High/Low Rename", default=True, update=update_panel_redraw)
 
+    # Object Tools Sub-tools
+    enable_tool_arrange: BoolProperty(name="Arrange", default=True, update=update_panel_redraw)
+
     # Cleanup Tools Sub-tools
     enable_tool_clean_objects: BoolProperty(name="Clean Objects", default=True, update=update_panel_redraw)
     enable_tool_checker_dissolve: BoolProperty(name="Checker Dissolve", default=True, update=update_panel_redraw)
@@ -699,7 +702,9 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
             box_obj = col_3d.box()
             box_obj.label(text="Object Mode Tools", icon='OBJECT_DATA')
             col_obj = box_obj.column()
-            draw_panel_category(col_obj, "Object Tools", 'OBJECT_DATA', "enable_object_tools", category_prop="category_object_tools")
+            draw_panel_category(col_obj, "Object Tools", 'OBJECT_DATA', "enable_object_tools", [
+                ("enable_tool_arrange", "Arrange")
+            ], category_prop="category_object_tools")
             draw_panel_category(col_obj, "UV Tools", 'UV_DATA', "enable_uv_tools", category_prop="category_uv_tools")
             draw_panel_category(col_obj, "Rename Tools", 'FONT_DATA', "enable_rename_tools", [
                 ("enable_tool_bone_batch_rename", "Bone Batch Rename"),

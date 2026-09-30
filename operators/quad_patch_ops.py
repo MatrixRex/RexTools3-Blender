@@ -1,6 +1,6 @@
 import bmesh
 import bpy
-from bpy.props import BoolProperty, FloatProperty, IntProperty
+from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty
 from bpy.types import Operator
 
 from ..core import notify, quad_patch
@@ -22,6 +22,38 @@ is kept by laying the grid onto the original surface"""
                     "Off: the border is untouched and a triangle is left next to it for each missing vertex",
         default=True,
     )
+    collapse: EnumProperty(
+        name="Collapse",
+        description="When a side has more vertices than the side opposite, first collapse one of its border "
+                    "edges to take a selected triangle away. The face outside that edge, if any, loses a corner "
+                    "(a triangle there goes away, a quad becomes a triangle). The merged vertex sits in the middle "
+                    "of the edge (or stays on the corner), with UVs, vertex weights and shape keys interpolated "
+                    "per UV island so nothing stretches. Anything still unbalanced is handled by Cut Neighbours "
+                    "and Split Border",
+        items=(
+            ('NONE', "Off", "Don't collapse border edges"),
+            ('BORDER', "Border Tris", "Collapse the border edge of a selected triangle on the longer side"),
+            ('INNER', "Inner Tris",
+             "Also use triangles further inside: collapse the triangle and the quads straight across from it "
+             "up to the longer side, taking one border edge away (the reverse of Split Border). "
+             "Includes Border Tris"),
+        ),
+        default='NONE',
+    )
+    cut_neighbours: BoolProperty(
+        name="Cut Neighbours",
+        description="When opposite sides have different vertex counts, first take in a corner triangle of the "
+                    "face next to a corner of the shorter side instead of changing the border: that face is "
+                    "cut in two and its other part stays (a quad becomes a triangle). One vertex per corner "
+                    "at most; anything still missing is handled by Split Border",
+        default=False,
+    )
+    flip_cut: BoolProperty(
+        name="Flip Cut",
+        description="Cut the neighbour at the other end of the shorter side than the one picked automatically. "
+                    "No effect when both ends are cut or only one end can be",
+        default=False,
+    )
     relax: IntProperty(
         name="Relax",
         description="Smoothing passes that even out the grid spacing along the surface",
@@ -40,8 +72,22 @@ is kept by laying the grid onto the original surface"""
         obj = context.active_object
         return obj is not None and obj.type == 'MESH' and context.mode == 'EDIT_MESH'
 
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        layout.prop(self, "split_border")
+        layout.row().prop(self, "collapse", expand=True)
+        layout.prop(self, "cut_neighbours")
+        row = layout.row()
+        row.active = self.cut_neighbours
+        row.prop(self, "flip_cut")
+        layout.prop(self, "relax")
+        layout.prop(self, "evenness")
+
     def execute(self, context):
-        built, errors, splits, tris, grids = 0, [], 0, 0, []
+        built, errors, collapsed, cuts, splits, tris, grids = 0, [], 0, 0, 0, 0, []
 
         for obj in context.objects_in_mode_unique_data:
             if obj.type != 'MESH':
@@ -55,13 +101,16 @@ is kept by laying the grid onto the original surface"""
             for patch in quad_patch.connected_patches(selected):
                 try:
                     _faces, stats = quad_patch.build_quad_patch(
-                        bm, patch, obj.matrix_world, split_border=self.split_border, relax=self.relax,
-                        evenness=self.evenness)
+                        bm, patch, obj.matrix_world, split_border=self.split_border,
+                        collapse=self.collapse, cut_neighbours=self.cut_neighbours,
+                        flip_cut=self.flip_cut, relax=self.relax, evenness=self.evenness)
                 except PatchError as e:
                     errors.append(str(e))
                     continue
                 changed = True
                 built += 1
+                collapsed += stats['collapsed']
+                cuts += stats['cuts']
                 splits += stats['splits']
                 tris += stats['tris']
                 grids.append(f"{stats['cols']}x{stats['rows']}")
@@ -74,6 +123,10 @@ is kept by laying the grid onto the original surface"""
             return {'CANCELLED'}
 
         message = f"Quad Patch: {', '.join(grids)} grid"
+        if collapsed:
+            message += f", {collapsed} border edges collapsed"
+        if cuts:
+            message += f", {cuts} neighbour faces cut"
         if splits:
             message += f", {splits} border edges split"
         if tris:

@@ -19,7 +19,6 @@ import bmesh
 from . import quad_patch_layout as layout
 from .quad_patch_layout import PatchError
 
-_UV_EPS = 1e-8
 _CG_MAX_ITERATIONS = 4000
 _CG_TOLERANCE = 1e-10
 
@@ -79,14 +78,8 @@ def _check_uv_continuity(faces, border_edges, surface):
                 continue
             if e.seam:
                 raise PatchError("Selection crosses a UV seam; select up to the seam instead")
-            loops = e.link_loops
-            if len(loops) != 2:
-                continue
-            l1, l2 = loops
-            for uv in surface.uv_layers:
-                if ((l1[uv].uv - l2.link_loop_next[uv].uv).length_squared > _UV_EPS
-                        or (l1.link_loop_next[uv].uv - l2[uv].uv).length_squared > _UV_EPS):
-                    raise PatchError("Selection crosses a UV island border; select up to it instead")
+            if not layout.uv_continuous(e, surface.uv_layers):
+                raise PatchError("Selection crosses a UV island border; select up to it instead")
 
 
 def _border_uv(sides, co):
@@ -264,6 +257,18 @@ def connected_patches(faces):
     return patches
 
 
+def _world_co(matrix_world):
+    """World position of a vertex, cached (make a new one after moving vertices)."""
+    world_cache = {}
+
+    def co(v):
+        p = world_cache.get(v)
+        if p is None:
+            p = world_cache[v] = matrix_world @ v.co
+        return p
+    return co
+
+
 def prepare(bm, faces, matrix_world):
     """Validate the selection and snapshot its surface before anything is modified.
 
@@ -273,14 +278,7 @@ def prepare(bm, faces, matrix_world):
     faces = [f for f in faces if f.is_valid]
     if not faces:
         raise PatchError("Select faces to rebuild")
-    world_cache = {}
-
-    def co(v):
-        p = world_cache.get(v)
-        if p is None:
-            p = world_cache[v] = matrix_world @ v.co
-        return p
-
+    co = _world_co(matrix_world)
     _border, border_edges = layout.border_loop(faces)
     surface = _Surface(bm, faces, co)
     _check_uv_continuity(faces, border_edges, surface)
@@ -375,17 +373,31 @@ def rebuild_patch(bm, faces, matrix_world, co, surface, sides, points, node_vert
     return new_faces, tris
 
 
-def build_quad_patch(bm, faces, matrix_world, *, split_border=True, relax=10, evenness=0.0):
+def build_quad_patch(bm, faces, matrix_world, *, split_border=True, collapse='NONE', cut_neighbours=False,
+                     flip_cut=False, relax=10, evenness=0.0):
     """Replace `faces` (one patch without holes) with a quad grid.
 
-    evenness (0..1) spaces the new vertices evenly along the grid lines, favouring
-    the patch's long direction; border vertices stay where they are.
-    Returns (new_faces, stats) with 'cols', 'rows', 'splits' (border edges split)
-    and 'tris' (triangles left because the border could not be split).
+    Unbalanced sides are evened out, in this order, by collapse ('BORDER' or
+    'INNER': collapse border edges that take the patch's triangles away),
+    cut_neighbours (take in a corner triangle of a neighbouring face; flip_cut uses
+    the other end of the side) and split_border; see quad_patch_layout. evenness
+    (0..1) spaces the new vertices evenly along the grid lines, favouring the
+    patch's long direction; border vertices stay where they are.
+    Returns (new_faces, stats) with 'cols', 'rows', 'collapsed' (border edges
+    collapsed), 'cuts' (neighbouring faces cut), 'splits' (border edges split) and
+    'tris' (triangles left because the sides could not be balanced).
     Raises PatchError with a user-facing message when the selection is unsuitable.
     """
     faces, co, surface = prepare(bm, faces, matrix_world)
-    plan = layout.plan(faces, co, split_border)
+    corners = layout.pick_corners(faces, co, split_border)
+    faces, corners, collapsed, cuts = layout.reshape(
+        bm, faces, corners, matrix_world, surface.uv_layers,
+        collapse=collapse, cut_neighbours=cut_neighbours, flip_cut=flip_cut)
+    if collapsed or cuts:
+        # The patch itself changed: snapshot it again, still before any border split.
+        co = _world_co(matrix_world)
+        surface = _Surface(bm, faces, co)
+    plan = layout.plan(faces, co, split_border, corners)
 
     n_cols, n_rows = len(plan['bottom']) - 1, len(plan['left']) - 1
     node_vert = {}
@@ -398,4 +410,5 @@ def build_quad_patch(bm, faces, matrix_world, *, split_border=True, relax=10, ev
     new_faces, tris = rebuild_patch(bm, faces, matrix_world, co, surface, plan,
                                     _grid_points(plan, n_cols, n_rows), node_vert, cells, relax,
                                     _grid_lines(n_cols, n_rows), evenness)
-    return new_faces, {'cols': n_cols, 'rows': n_rows, 'splits': plan['splits'], 'tris': tris}
+    return new_faces, {'cols': n_cols, 'rows': n_rows, 'collapsed': collapsed, 'cuts': cuts,
+                       'splits': plan['splits'], 'tris': tris}

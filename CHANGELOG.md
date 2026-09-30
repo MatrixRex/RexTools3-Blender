@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Collapse → Border Tris** collapses the border edge of a selected triangle on the longer side, removing one border vertex. The face outside loses a corner (a quad becomes a triangle, a triangle disappears); this also works on the mesh's open edge. **Inner Tris** also uses triangles further inside, collapsing the quads straight across from the triangle up to the border — the reverse of Split Border.
   - Collapsed vertices keep their UVs per UV island (on both sides of a seam), along with vertex weights and shape keys, so nothing around them stretches — unlike a regular merge.
   - **Cut Neighbours** gives the shorter side an extra vertex by cutting the face next to one of its corners in two and taking its corner triangle into the patch; border edges stay untouched and the neighbouring quad becomes a triangle. **Flip Cut** uses the other end of the side.
+- **Releases**: Each version is now published as a GitHub release with an installable extension `.zip`.
+
+### Changed
+
+- Requires Blender 5.2 or later (was 4.5).
 
 ## [0.6.0] - 2026-09-30
 

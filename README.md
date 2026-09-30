@@ -218,11 +218,10 @@ Direct integration with Meshy API for 3D generative workflows and automated PBR 
 
 ## 📥 Installation
 
-1. Download the latest release as a `.zip` file.
-2. In Blender, go to **Edit > Preferences > Add-ons**.
-3. Click **Install...** and select the downloaded `.zip` file.
-4. Enable **RexTools3** from the list.
+1. Download `rextools3-x.y.z.zip` from the latest [release](https://github.com/MatrixRex/RexTools3-Blender/releases/latest).
+2. Drag the `.zip` into Blender, or go to **Edit > Preferences > Add-ons**, open the **⌄** menu at the top right and choose **Install from Disk...**.
+3. Make sure **RexTools3** is enabled in the list.
 
 ## 📋 Requirements
 
-- Blender 4.2.0 or later.
+- Blender 5.2.0 or later.

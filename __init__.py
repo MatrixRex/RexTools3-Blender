@@ -15,7 +15,7 @@ bl_info = {
     "name": "RexTools3",
     "author": "MatrixRex",
     "description": "A set of production tools for Blender",
-    "blender": (4, 5, 0),
+    "blender": (5, 2, 0),
     "version": (0, 7, 0),
     "location": "View3D > Sidebar > RexTools3",
     "warning": "",

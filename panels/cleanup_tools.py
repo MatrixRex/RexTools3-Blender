@@ -35,7 +35,8 @@ class RexTools3CleanupToolsPanel(bpy.types.Panel):
             not prefs or 
             prefs.enable_tool_clean_objects or
             (context.mode == 'EDIT_MESH' and (prefs.enable_tool_checker_dissolve or prefs.enable_tool_directional_quads
-                                              or prefs.enable_tool_quad_patch or prefs.enable_tool_strip_transition))
+                                              or prefs.enable_tool_quad_patch or prefs.enable_tool_strip_transition
+                                              or prefs.enable_tool_slide_relax))
         )
         if show_clean_box:
             box = layout.box()
@@ -62,6 +63,9 @@ class RexTools3CleanupToolsPanel(bpy.types.Panel):
 
             if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_strip_transition):
                 box.operator("rextools3.strip_transition", text="Strip Transition", icon='FULLSCREEN_EXIT')
+
+            if context.mode == 'EDIT_MESH' and (not prefs or prefs.enable_tool_slide_relax):
+                box.operator("rextools3.slide_relax", text="Slide Relax", icon='MOD_SMOOTH')
 
         # Clean Modifiers Box
         if not prefs or prefs.enable_tool_clean_modifiers:

@@ -543,6 +543,7 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
     enable_tool_directional_quads: BoolProperty(name="Directional Quads", default=True, update=update_panel_redraw)
     enable_tool_quad_patch: BoolProperty(name="Quad Patch", default=True, update=update_panel_redraw)
     enable_tool_strip_transition: BoolProperty(name="Strip Transition", default=True, update=update_panel_redraw)
+    enable_tool_slide_relax: BoolProperty(name="Slide Relax", default=True, update=update_panel_redraw)
     enable_tool_clean_modifiers: BoolProperty(name="Clean Modifiers", default=True, update=update_panel_redraw)
     enable_tool_missing_textures: BoolProperty(name="Missing Textures Scanner", default=True, update=update_panel_redraw)
     enable_tool_purge_orphans: BoolProperty(name="Purge Orphans", default=True, update=update_panel_redraw)
@@ -765,6 +766,7 @@ class RexTools3Preferences(bpy.types.AddonPreferences):
                 ("enable_tool_directional_quads", "Directional Quads"),
                 ("enable_tool_quad_patch", "Quad Patch"),
                 ("enable_tool_strip_transition", "Strip Transition"),
+                ("enable_tool_slide_relax", "Slide Relax"),
                 ("enable_tool_clean_modifiers", "Clean Modifiers"),
                 ("enable_tool_missing_textures", "Missing Textures Scanner"),
                 ("enable_tool_purge_orphans", "Purge Orphans")

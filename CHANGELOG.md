@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-09-30
+
+### Added
+
+- **Object Tools → Arrange → Grid** (Object Mode): Lays the selected objects out in a grid sorted by bounding box size, largest first, reading left to right and then row by row. The grid size is picked automatically so the whole layout comes out as close to square as possible. Each column is only as wide as its widest object and each row as deep as its deepest, so small objects don't get cells sized for the biggest one.
+  - Children move with their parent and count toward its size; an empty instancing a collection is sized by the collection it shows.
+  - **Spacing**, **Largest First**, **Center On** (the selection or the 3D cursor) and **Align Bottoms** (rest every object at the same height) are in the redo panel.
+- **Cleanup Tools → Edge Cleanup** (Edit Mode, selected edges): Merges the vertices within **Distance** of a selected edge into it: into the end vertex when near an end, otherwise into a new vertex split into the edge there. Edges that fold onto the selected edges are split where they pass selected vertices, so sliver faces close up instead of going flat. **Include Selected** also merges the selected edges' own vertices.
+- **Edit Tools → Selection → Thin Walls** (Edit Mode): Finds walls thinner than **Max Thickness** and selects their **Inner** side, **Outer** side or **Both**, like the inside of a cup or the body side of a jacket. **Outer Side** decides which side is outer: the one that sees more open space, or the one facing away from the mesh centre or the 3D cursor. Sides that can't be told apart stay unselected and are reported. **Max Angle** also finds tapering walls, and **Only Selected** keeps the result inside the current selection. Normals must point out of the mesh.
+- **Preferences**: Toggles for Arrange under Object Tools, Edge Cleanup under Cleanup Tools and Thin Walls under Edit Tools.
+
 ## [0.7.0] - 2026-09-30
 
 ### Added

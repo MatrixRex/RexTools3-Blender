@@ -68,6 +68,7 @@ clipboard = "Copy text and metadata to system clipboard"
 paths_exclude_pattern = [
   "__pycache__/",
   "/.git/",
+  "/.github/",
   "/.vscode/",
   "/.agent/",
   "/.stfolder/",

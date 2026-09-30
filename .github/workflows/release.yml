@@ -1,0 +1,29 @@
+name: Release
+
+# Builds the installable extension zip for a version tag and publishes it as that tag's
+# GitHub release. Tags (vX.Y.Z) are created on main by the agent's bump-version workflow
+# (.agent/workflows/bump-version.md), which also runs all the release checks; the release
+# notes are the tag's message. The zip is never committed.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension zip
+        run: python3 .github/scripts/build_extension.py "$RUNNER_TEMP/dist"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/dist/*.zip \
+            --title "RexTools3 ${GITHUB_REF_NAME#v}" \
+            --notes-from-tag

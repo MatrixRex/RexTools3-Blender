@@ -4,7 +4,7 @@ Purpose: Help AI coding agents become productive in the RexTools3 Blender add-on
 
 ## Project Essentials & Quick Orientation
 
-- **Blender add-on** (Python, `bpy`). No pip/venv/pyproject. No external deps. No tests. No CI.
+- **Blender add-on** (Python, `bpy`). No pip/venv/pyproject. No external deps. No tests. CI only builds release zips (`.github/workflows/release.yml`, on `v*` tags).
 - **Entry**: `__init__.py` → `auto_load.init()` discovers modules from `operators/`, `panels/`, `core/`, `ui/`.
 - **Registering classes**: never call `bpy.utils.register_class` directly at module import time. Add class to an `operators/` or `panels/` module; `auto_load` handles ordering via type annotations and `bl_parent_id`.
 - **Properties**: define `PropertyGroup` in `properties.py`, register in `register_properties()`, unregister in `unregister_properties()`. Always update both.
@@ -116,8 +116,8 @@ def unregister_properties():
 - Useful local commands (PowerShell):
 
 ```powershell
-# Package (run from repo root)
-Compress-Archive -Path . -DestinationPath ..\rextools3.zip
+# Package the installable zip, same as the release workflow (needs Python 3.11+, e.g. Blender's bundled one)
+& "C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\bin\python.exe" .github/scripts/build_extension.py <output dir>
 
 # Lint (if pyflakes available in host Python)
 python -m pyflakes .
@@ -137,9 +137,7 @@ python -m pyflakes .
 - **Standard Post-Feature Workflow**:
   1. Complete code changes and run `python .agent/scripts/reload_addon.py` to trigger Blender addon reload.
   2. Ask the user to confirm and test that the feature/fix works properly in Blender.
-  3. Upon user confirmation, propose the version bump: state the current version, the proposed new version (`Patch` or `Minor`), and ask if `CHANGELOG.md` and/or `README.md` should be updated.
-  4. Once approved by the user, update `__init__.py`, `blender_manifest.toml`, `CHANGELOG.md` (adhering to Keep a Changelog format: `Added`, `Changed`, `Fixed`), and `README.md` (if documentation changed).
-  5. Run `python .agent/scripts/reload_addon.py` again to ensure the reloaded addon reflects updated version metadata.
+  3. When the user asks to bump the version, follow [.agent/workflows/bump-version.md](file:///e:/Nazmul/RexToolsBlender/.agent/workflows/bump-version.md) end to end without further questions: version files, `CHANGELOG.md` (Keep a Changelog: `Added`, `Changed`, `Fixed`), `README.md`, release checks, commit, `vX.Y.Z` tag and push. The pushed tag makes GitHub build the zip and publish the release.
 
 ## Gotchas & Guidelines
 

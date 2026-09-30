@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-09-30
+
+### Added
+
+- **Cleanup Tools → Slide Relax** (Edit Mode, selected vertices): Fixes folded, overlapping faces, such as the spikes a bevel leaves when it overshoots (Clamp Overlap off). Each folded vertex slides back along one of its own edges, picking the edge it overshot along, and only as far as needed to open its faces up, so the result stays on the original surface. Quads that were pulled into bow-ties are fixed too.
+  - **Strength** also relaxes the selection toward even spacing along those edges without folding anything (0 only undoes folds); **Iterations** lets vertices that overshot together open up over several passes.
+  - Only folded vertices unfold; selected neighbours that were just dragged into a fold wait until it is open. A patch is never left with more folds than it started with.
+- **Preferences**: Toggle for Slide Relax under Cleanup Tools.
+
 ## [0.5.3] - 2026-09-29
 
 ### Added
